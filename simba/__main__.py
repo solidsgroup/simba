@@ -4,9 +4,9 @@ import pathlib
 import argparse
 import configparser
 
-import record
-import web
-import rt
+from . import record
+from . import web
+from . import rt
 
 parser = argparse.ArgumentParser()
 parser.add_argument("mode",help="Select mode",choices=["record","web","rt"])
