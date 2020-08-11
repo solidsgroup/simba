@@ -11,49 +11,6 @@ class Status:
     bm_runtime = 0.0
 
 #
-# Scan an output directory and bundle all of the stuff in a dictionary
-#
-def parse(directory):
-
-    things = dict()
-
-    things['DIR'] = os.path.abspath(directory)
-
-    f = open(directory+"/metadata")
-    for line in f.readlines():
-        if line.startswith('#'): continue;
-        if '::' in line:
-            line = re.sub(r'\([^)]*\)', '',line)
-            line = line.replace(" :: ", " = ").replace('[','').replace(',','').replace(']','').replace(' ','')
-        if len(line.split(' = ')) != 2: continue;
-        col = line.split(' = ')[0].replace('.','_')
-        val = line.split(' = ')[1].replace('  ','').replace('\n','').replace(';','')
-        
-        things[col] = val
-
-    if os.path.isfile(directory+"/diff.html"):
-        difffile = open(directory+"/diff.html")
-        things['DIFF'] = difffile.read()
-        difffile.close()
-
-    if os.path.isfile(directory+"/diff.patch"):
-        difffile = open(directory+"/diff.patch")
-        things['DIFF_PATCH'] = difffile.read()
-        difffile.close()
-
-    if os.path.isfile(directory+"/stdout"):
-        difffile = open(directory+"/stdout","r")
-        things['STDOUT'] = difffile.read()
-        difffile.close()
-
-    if os.path.isfile(directory+"/stderr"):
-        difffile = open(directory+"/stderr")
-        things['STDERR'] = difffile.read()
-        difffile.close()
-
-    return things
-
-#
 # Scan through an entry's data dictionary and determine datatypes
 #
 def getTypes(data):
@@ -84,6 +41,9 @@ def getTypes(data):
 # Create a table if it does not exist, or update the table if it does.
 #
 def updateTable(cur,tablename,types,mode="results",verbose=True):
+    """
+    Create a table if it does not exist, or update the table if it does.
+    """
     # If the table does not exist, create it
     cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [r[0] for r in cur.fetchall()]
@@ -147,9 +107,9 @@ def updateRecord(cur,tablename,data,hash=None,verbose=True):
     
     if old_dir:
         if (old_dir == new_dir):
-            if (verbose): print(u'  \u251C\u2574'+'\033[1;33mUpdating\033[1;0m:  ' + new_dir + ' ( record already exists )')
+            if (verbose): print(u'  \u251C\u2574'+'\033[1;33mUpdating\033[1;0m:  ...' + new_dir[-40:] + ' ( record already exists )')
         else:
-            if (verbose): print(u'  \u251C\u2574'+'\033[1;36mMoving\033[1;0m:    ' + old_dir + ' --> ' + new_dir)
+            if (verbose): print(u'  \u251C\u2574'+'\033[1;36mMoving\033[1;0m:    ...' + old_dir[-40:] + ' --> ' + new_dir)
 
     if 'DIFF' in data:
         cur.execute("UPDATE " + tablename + " SET DIFF = ? WHERE HASH = ?",(data['DIFF'],hash))
