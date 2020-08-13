@@ -10,9 +10,11 @@ from flask import Flask, request, render_template, send_file, redirect, Response
 from flaskext.markdown import Markdown
 from flask_frozen import Freezer
 import datetime
-
+import webbrowser
+from threading import Timer
 
 def web(parser,config,simbaPath):
+
     print("====================================")
     print("SIMBA: SIMulation Browser Analysis")
     print("====================================")
@@ -20,11 +22,15 @@ def web(parser,config,simbaPath):
     #parser = argparse.ArgumentParser(description='Start a webserver to brows database entries');
     parser.add_argument('-i','--ip', default='127.0.0.1', help='IP address of server (default: localhost)');
     parser.add_argument('-p','--port', default='5000', help='Port (default: 5000)');
-    parser.add_argument('-d','--database',default='results.db',help='Name of database to read from')
+    parser.add_argument('-d','--database',default=str(simbaPath/'results.db'),help='Name of database to read from')
     parser.add_argument('-s','--safe',dest='safe',action='store_true',help='Safe mode - disallow permanent record deletion')
     parser.add_argument('-f','--fast',dest='fast',action='store_true',help='Fast mode - fewer features for working with large datasets')
     parser.add_argument('--pwd',default=False,action='store_true')
     args=parser.parse_args()
+
+    # Thread to open default browser and go to main page
+    def open_browser():
+        webbrowser.open_new('http://{}:{}/'.format(args.ip,args.port))
 
     pwd = None
     usr = None
@@ -94,7 +100,7 @@ def web(parser,config,simbaPath):
 
     @app.route("/table/<table>", methods=['GET','POST'])
     @requires_auth
-    def table(table):
+    def table(table="Bending"):
         db = sqlite3.connect(args.database)
         db.text_factory = str
         cur= db.cursor()
@@ -425,6 +431,8 @@ def web(parser,config,simbaPath):
 
     #if __name__ == '__main__':
         #freezer.freeze()
+
+    Timer(1, open_browser).start()        
     app.run(debug=True,
                 use_reloader=False,
                 host=args.ip,
