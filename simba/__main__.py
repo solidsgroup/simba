@@ -1,4 +1,3 @@
-print("Simba 2020.08.11.05B")
 
 import os
 import sys
@@ -17,9 +16,9 @@ def main():
 
     #os.system("python3 "+exepath+"/simba-"+sys.argv[1]+".py "+" ".join(sys.argv[2:]))
     if sys.argv[1] in ["add","status"]:
-        os.system(exepath + "/simba-add.py " + " ".join(sys.argv[1:]))
+        os.system(sys.executable + " " + exepath + "/simba-add.py " + " ".join(sys.argv[1:]))
     if sys.argv[1] in ["web"]:
-        os.system(exepath + "/simba-web.py " + " ".join(sys.argv[1:]))
+        os.system(sys.executable + " " + exepath + "/simba-web.py " + " ".join(sys.argv[1:]))
 
 
 if __name__ == '__main__':

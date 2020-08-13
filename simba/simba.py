@@ -53,7 +53,7 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
         if mode == "results":
             cur.execute('CREATE TABLE ' + tablename + ' ('
                         'HASH VARCHAR(255) UNIQUE, ' +
-                        'DIR VARCHAR(255) UNIQUE, ' +
+                        'DIR VARCHAR(255), ' +
                         'Description VARCHAR(8000),' +
                         'Tags VARCHAR(1000)' +
                         (',' if len(types)>0 else '') +

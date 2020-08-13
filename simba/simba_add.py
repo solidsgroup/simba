@@ -14,8 +14,8 @@ import pathlib
 #from . import util
 #from . import simba
 #For local mode
-import util
-import simba
+from simba import util
+from simba import simba
 
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 config    = util.getConfigFile(simbaPath)
@@ -46,7 +46,7 @@ cur= db.cursor()
 
 for table in tables:
     types = dict()
-    directories = sorted(glob.glob(table["match"]))
+    directories = sorted(glob.glob(str(simbaPath/table["match"])))
 
 
     #

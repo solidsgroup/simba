@@ -15,8 +15,8 @@ from threading import Timer
 import pathlib
 import webbrowser
 
-import util
-import simba
+from simba import util
+from simba import simba
 
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 config    = util.getConfigFile(simbaPath)
@@ -169,7 +169,7 @@ def table(table="Bending"):
     db.commit()
     db.close()
 
-    if table==None or table not in tables: table = tables[0];
+    if table==None or table not in tables: table = tables[0]
 
     numfiles = []
     if not args.fast:
