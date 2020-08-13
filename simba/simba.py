@@ -53,6 +53,7 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
         if mode == "results":
             cur.execute('CREATE TABLE ' + tablename + ' ('
                         'HASH VARCHAR(255) UNIQUE, ' +
+                        'DIR VARCHAR(255) UNIQUE, ' +
                         'Description VARCHAR(8000),' +
                         'Tags VARCHAR(1000)' +
                         (',' if len(types)>0 else '') +
@@ -80,7 +81,7 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
     # If the table exists, but new columns have been added, modify the table
     # accordingly
     sqlstring = "PRAGMA table_info("+tablename+")"
-    print(sqlstring)
+    if verbose: print(sqlstring)
     cur.execute(sqlstring)
     columns=[a[1] for a in cur.fetchall()]
     for key in types:
@@ -89,19 +90,21 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
             if (verbose): print('\033[1;34mADDED COLUMN\033[1;0m: ' + key + ' to ' + tablename)
 
 
-def updateRecord(cur,tablename,data,hash=None,verbose=True):
-    if not hash: hash = data['HASH']
-    new_dir = data['DIR']
+def updateRecord(cur,tablename,data,hash,directory,verbose=True):
+    new_dir = directory
+    #print("Directory", str(directory))
     
     cur.execute('SELECT HASH FROM ' + tablename + ' WHERE HASH = ?',(hash,))
     if (len(cur.fetchall()) == 0):
-        cur.execute("INSERT INTO {} (HASH) VALUES (?)".format(tablename),(hash,))
+        cur.execute("INSERT INTO {} (HASH,DIR) VALUES (?,?)".format(tablename),(hash,new_dir))
         if(verbose): print(u'  \u251C\u2574'+'\033[1;32mInserting\033[1;0m: ' + new_dir)
         old_dir = None
     else:
         cur.execute('SELECT DIR FROM {} WHERE HASH = ?'.format(tablename),(hash,))
         old_dir = cur.fetchall()[0][0]
         
+    
+    cur.execute('UPDATE {} SET DIR = ? WHERE HASH = ?'.format(tablename),(new_dir,hash))
     for col in data:
         cur.execute('UPDATE {} SET {} = ? WHERE HASH = ?'.format(tablename,col),(data[col],hash))
     
@@ -113,6 +116,10 @@ def updateRecord(cur,tablename,data,hash=None,verbose=True):
 
     if 'DIFF' in data:
         cur.execute("UPDATE " + tablename + " SET DIFF = ? WHERE HASH = ?",(data['DIFF'],hash))
+
+def getTableEntries(cur,tablename):
+    cur.execute('SELECT HASH,DIR from '+tablename)
+    return cur.fetchall()
 
 def updateRegTestTable(cur,verbose=False):
     types = dict()

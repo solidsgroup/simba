@@ -3,13 +3,14 @@ print("Simba 2020.08.11.05")
 import pathlib
 import argparse
 import configparser
+import importlib
 
-from . import record
-from . import web
-from . import rt
+import record
+import web
+import rt
 
 parser = argparse.ArgumentParser()
-parser.add_argument("mode",help="Select mode",choices=["record","web","rt"])
+parser.add_argument("mode",help="Select mode",choices=["status","add","web","rt"])
 parser.add_argument("-v","--verbose",action="store_true",default="False")
 args, unknown = parser.parse_known_args()
 
@@ -50,10 +51,26 @@ config.read(getIncludedFiles(simbaPath/"config"))
 config.remove_section("include")
 
 #
+# Read in user-defined path to a file
+#
+def module_from_file(module_name, file_path):
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+class scripts:
+    parseOutputDir = module_from_file("parseOutputDir",simbaPath/"parseOutputDir.py").parseOutputDir
+    getHash        = module_from_file("getHash",simbaPath/"getHash.py").getHash
+
+
+#
 # Launch the program
 #
-if args.mode == "record":
-    record.record(parser,config,simbaPath)
+if args.mode == "add":
+    record.record(parser,config,simbaPath,scripts(),"add")
+if args.mode == "status":
+    record.record(parser,config,simbaPath,scripts(),"status")
 if args.mode == "web":
     web.web(parser,config,simbaPath)
 if args.mode == "rt":
