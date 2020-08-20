@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="simba",
-    version="2020.08.13.07",
+    version="2020.08.30.01",
     description="Manage output from scientific simulations",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -25,7 +25,8 @@ setup(
     ],
     packages=["simba"],
     include_package_data=True,
-    install_requires=["Flask>=0.2","pathlib","Frozen-Flask","Flask-Markdown"],
+    install_requires=["Flask>=0.2","Frozen-Flask","Flask-Markdown"],
+    python_requires='>3.6',
     scripts=['bin/simba']
     #entry_points={
     #    "console_scripts": [

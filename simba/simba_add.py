@@ -19,7 +19,7 @@ from simba import simba
 
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 config    = util.getConfigFile(simbaPath)
-scripts   = util.getScripts(simbaPath)
+scripts   = util.getScripts(config)
 
 parser = argparse.ArgumentParser(description='Sift through outputs')
 parser.add_argument('mode')

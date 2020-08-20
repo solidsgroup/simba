@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 import sys
-print("Simba 2020.08.13.7")
+print("Simba 2020.08.20.01")
 
-print("WE ARE HERE")
-if sys.argv[1] in ["add","status"]:
+if len(sys.argv) < 2:
+    print(
+"""usage: simba <command> [<args>]
+Basic commands:
+    add     Update database with all new records
+    status  Print new or modified records
+    web     Start web server""")
+
+elif sys.argv[1] in ["add","status"]:
     from simba import simba_add
-if sys.argv[1] in ["web"]:
+elif sys.argv[1] in ["web"]:
     from simba import simba_web

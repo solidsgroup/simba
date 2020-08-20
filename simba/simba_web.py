@@ -20,7 +20,7 @@ from simba import simba
 
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 config    = util.getConfigFile(simbaPath)
-scripts   = util.getScripts(simbaPath)
+scripts   = util.getScripts(config)
 
 print("====================================")
 print("SIMBA: SIMulation Browser Analysis")

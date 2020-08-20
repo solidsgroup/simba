@@ -13,6 +13,23 @@ import importlib
 #args, unknown = parser.parse_known_args()
 
 #
+# Colors
+#
+#    reset = "\033[0m"
+#    red   = "\033[31m"
+#    green   = "\033[32m"
+#    lightgray = "\033[37m"
+#    boldgray = "\033[1m\033[37m"
+#    boldgreen   = "\033[1m\033[32m"
+#    boldyellow   = "\033[1m\033[33m"
+#    boldred   = "\033[1m\033[31m"
+#    bggray = "\033[47m\033[30m"
+    
+def bold(str):  return "\033[1m{}\033[0m".format(str)
+def red(str):   return "\033[31m{}\033[0m".format(str)
+def green(str): return "\033[32m{}\033[0m".format(str)
+
+#
 # Look recursively for a .simba directory in this or a parent path
 #
 def getSimbaDir(path):
@@ -33,7 +50,8 @@ def getSimbaDir(path):
 #
 def getConfigFile(simbaPath):
     def getIncludedFiles(configfile):
-        config = configparser.ConfigParser(allow_no_value=True)
+        config = configparser.SafeConfigParser(allow_no_value=True)
+        config.optionxform = str
         config.read(configfile.parent/configfile)
         ret = []
         if "include" in config.sections():
@@ -44,15 +62,32 @@ def getConfigFile(simbaPath):
                     raise(Exception("Could not find file {}".format(f)))
         ret += [configfile]
         return ret
-    config = configparser.ConfigParser(allow_no_value=True)
-    config.read(getIncludedFiles(simbaPath/"config"))
+
+    config = configparser.SafeConfigParser(allow_no_value=True)
+    config.optionxform = str
+
+    for f in getIncludedFiles(simbaPath/"config"):
+        tmpconfig = configparser.SafeConfigParser(allow_no_value=True)
+        tmpconfig.optionxform = str
+        tmpconfig.read(f)
+        for sec in tmpconfig:
+            if len(tmpconfig[sec])==0: continue
+            for s in tmpconfig[sec]:
+                if not sec in config: config.add_section(sec)
+                if tmpconfig[sec][s]: 
+                    if ((f.parent/tmpconfig[sec][s]).is_file()):
+                        config[sec][s] = str(f.parent/tmpconfig[sec][s])
+                    else:
+                        config[sec][s] = tmpconfig[sec][s]
+                else: 
+                    config[sec][s] = None
     config.remove_section("include")
     return config
 
 #
 # Read in user-defined path to a file
 #
-def getScripts(simbaPath):
+def getScripts(config):
     def module_from_file(module_name, file_path):
         spec = importlib.util.spec_from_file_location(module_name, file_path)
         module = importlib.util.module_from_spec(spec)
@@ -60,8 +95,8 @@ def getScripts(simbaPath):
         return module
 
     class scripts:
-        parseOutputDir = module_from_file("parseOutputDir",simbaPath/"parseOutputDir.py").parseOutputDir
-        getHash        = module_from_file("getHash",simbaPath/"getHash.py").getHash
+        parseOutputDir = module_from_file("parseOutputDir",config["scripts"]["parseOutputDir"]).parseOutputDir
+        getHash        = module_from_file("getHash",       config["scripts"]["getHash"])       .getHash
 
     return scripts()
 
