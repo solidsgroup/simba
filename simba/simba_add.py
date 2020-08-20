@@ -35,10 +35,27 @@ if (simbaPath/"data.ini").is_file():
     config = configparser.ConfigParser()
     config.read(simbaPath/"data.ini")
     for sec in config.sections():
-        if '-' in sec:
-            raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
-        table = {"name":sec, "match":config[sec]["match"]}
-        tables.append(table)
+        multisecs = glob.glob(str(simbaPath/sec))
+        if len(multisecs) > 0:
+            print(util.red(simbaPath/sec))
+            for subsec in multisecs:
+                #print("\t",util.green(simbaPath/subsec))
+                #print("\t\t",(simbaPath/subsec).name)
+                if "name" in config[sec]:
+                    tablename = config[sec]["name"].replace("$VARDIR",str((simbaPath/subsec).name))
+                else:
+                    tablename = str((simbaPath/subsec).name)
+
+                #tablename = tablename.replace('-','_')
+                tablematch = config[sec]["match"].replace("$VARPATH",str(simbaPath/subsec))
+
+                table = {"name":tablename, "match":tablematch}
+                tables.append(table)
+        else:
+            if '-' in sec:
+                raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
+            table = {"name":sec, "match":config[sec]["match"]}
+            tables.append(table)
 
 db = sqlite3.connect(args.database if args.database.endswith('.db') else args.database+'.db')
 db.text_factory = str
@@ -53,8 +70,6 @@ for table in tables:
     # Scan metadata files to determine columns
     #
     for directory in directories:
-        if not os.path.isfile(directory+'/metadata'):
-            continue            
         data = scripts.parseOutputDir(directory)
         if data:
             types.update(simba.getTypes(data))
@@ -84,7 +99,7 @@ for table in tables:
         dirhash = scripts.getHash(directory)
         dirname = os.path.abspath(directory)
         data = scripts.parseOutputDir(directory)
-        if not data:
+        if not data or not dirhash:
             bad.append(dirname)
             continue
         
