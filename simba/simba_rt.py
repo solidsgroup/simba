@@ -237,10 +237,11 @@ for branch in branches:
         else:
             bm_hash = "NONE"
             status.bm_runtime = 0
-        data = simba.parse(rt_plot_dir+'/output')
+        data = scripts.parseOutputDir(rt_plot_dir+'/output')
+        #data = simba.parse(rt_plot_dir+'/output')
         types = simba.getTypes(data)
         simba.updateTable(cur,test,types,verbose=False)
-        simba.updateRecord(cur,test,data,verbose=False)
+        simba.updateRecord(cur,test,data,data['HASH'],rt_plot_dir+'/output',verbose=False)
         simba.updateRegTestRecord(cur,data['HASH'],run_id,test,status,bm_hash,benchmark_run,rt_dir)
         db.commit()
 db.close()

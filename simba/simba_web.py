@@ -442,7 +442,7 @@ def regtest(a_regtest):
 #if __name__ == '__main__':
     #freezer.freeze()
 
-Timer(1, open_browser,args=('http://{}:{}/'.format(args.ip,args.port),)).start()        
+#Timer(1, open_browser,args=('http://{}:{}/'.format(args.ip,args.port),)).start()        
 app.run(debug=True,
             use_reloader=False,
             host=args.ip,
