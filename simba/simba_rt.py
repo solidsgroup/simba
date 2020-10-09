@@ -75,58 +75,71 @@ simba.updateRegTestTable(cur,verbose=False)
 
 conv = ansi2html.Ansi2HTMLConverter()
 
+def run(args):
+    print("[" + alamo_path + "] $> ", " ".join(args))
+    ret =  subprocess.run(args,cwd=alamo_path,stderr=subprocess.PIPE,stdout=subprocess.PIPE)
+    try:
+        print(ret.stdout.decode())
+        print(ret.stderr.decode())
+    except BlockingIOError:
+        print("Warning: Error encountered when trying to print output")
+    return ret
+
 for branch in branches:
     returncode = 0
     run_id = timestamp
     build_stdout = ""
     if branch != '':
         run_id += "-" + branch
-        ret = subprocess.run(clean_cmd.split(' '),cwd=alamo_path,stderr=subprocess.PIPE,stdout=subprocess.PIPE)
+        for indiv_clean_cmd in clean_cmd.split('&'):
+            print("Cleaning: ", indiv_clean_cmd)
+            ret = run(indiv_clean_cmd.split(' '))
+            print("...done")
         build_stdout += ret.stdout.decode()
         if (ret.returncode):
             print("\033[31m"+ret.stdout.decode())
-            print(ret.stderr.decode()+"\033[0m")
+            #print(ret.stderr.decode()+"\033[0m")
             raise(Exception("There was an error cleaning"))
-        ret = subprocess.run(['git','fetch','--all'],cwd=alamo_path,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        ret = run(['git','fetch','--all'])
         build_stdout += ret.stdout.decode()
         if (ret.returncode):
             print("\033[31m"+ret.stdout.decode())
-            print(ret.stderr.decode()+"\033[0m")
+            #print(ret.stderr.decode()+"\033[0m")
             raise(Exception("There was an error fetching"))
-        ret = subprocess.run(['git','checkout',branch],cwd=alamo_path,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        ret = run(['git','checkout',branch])
         build_stdout += ret.stdout.decode()
         if (ret.returncode):
             print("\033[31m"+ret.stdout.decode())
-            print(ret.stderr.decode()+"\033[0m")
+            #print(ret.stderr.decode()+"\033[0m")
             raise(Exception("There was an error checking out branch \""+branch+"\":"))
-        ret = subprocess.run(['git','pull'],cwd=alamo_path,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        ret = run(['git','pull'])
         build_stdout += ret.stdout.decode()
         if (ret.returncode):
             print("\033[31m"+ret.stdout.decode())
-            print(ret.stderr.decode()+"\033[0m")
+            #print(ret.stderr.decode()+"\033[0m")
             raise(Exception("There was an error pulling"))
         for d in dimensions:
             # Configure ND
-            ret = subprocess.run(['./configure','--dim='+d]+alamo_configure_flags.split(),cwd=alamo_path,stderr=subprocess.PIPE,stdout=subprocess.PIPE)
+            ret = run(['./configure','--dim='+d] + alamo_configure_flags.split(' '))
             build_stdout += ret.stdout.decode()
-            print(ret.stdout.decode())
+            #print(ret.stdout.decode())
             simba.updateRegTestRun(cur,run_id,ret.returncode,conv.convert(build_stdout))
             db.commit()
             if (ret.returncode): 
                 print("Encountered error configuring {} in {}D".format(branch,d))
                 continue
             # Compile ND
-            ret = subprocess.run(['make','-j{}'.format(nprocs_build)],cwd=alamo_path,stderr=subprocess.PIPE,stdout=subprocess.PIPE)
+            ret = run(['make','-j{}'.format(nprocs_build)])
             build_stdout += ret.stdout.decode()
-            print(ret.stdout.decode())
+            #print(ret.stdout.decode())
             simba.updateRegTestRun(cur,run_id,ret.returncode,conv.convert(build_stdout))
             db.commit()
             if (ret.returncode): 
                 print("Encountered error making {} in {}D".format(branch,d))
                 continue
     else:
-        ret = subprocess.run(['git','status'],cwd=alamo_path,stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-        print(ret.stdout.decode())
+        ret = run(['git','status'])
+        #print(ret.stdout.decode())
         build_stdout += ret.stdout.decode()
     simba.updateRegTestRun(cur,run_id,0,conv.convert(build_stdout))
     db.commit()
@@ -158,19 +171,17 @@ for branch in branches:
         else:
             rt_plot_dir = regtest_root_dir + "/" + run_id + "/" + test + "/"
             print("------------- rt_plot_dir: ", rt_plot_dir)
-            subprocess.run(["mkdir", "-p", rt_plot_dir])
+            run(["mkdir", "-p", rt_plot_dir])
             print(rt_plot_dir+"/output/")
             print("Running ...... ")
-            ret = subprocess.run(["mpirun", "-np", str(nprocs), "./bin/alamo-{}d-g++".format(dim), input_file, "plot_file={}/output".format(rt_plot_dir)],
-                                 cwd=alamo_path,
-                                 stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            ret = run(["mpirun", "-np", str(nprocs), "./bin/alamo-{}d-g++".format(dim), input_file, "plot_file={}/output".format(rt_plot_dir)])
             status.runcode = ret.returncode
             print(rt_plot_dir+"/output/")
             if not os.path.isdir(rt_plot_dir+"/output/"):
                 print("CREATING DIRECTORY!\n")
                 print(status.runcode)
                 print(os.path.isdir(rt_plot_dir+"/output/"))
-                subprocess.run(["mkdir","-p",rt_plot_dir+"/output/"])
+                run(["mkdir","-p",rt_plot_dir+"/output/"])
                 with open(rt_plot_dir+"/output/metadata","w") as f:
                     f.write("Simulation_run_time = 0\n")
                     f.write("HASH = " + ''.join(random.choice('0123456789') for i in range(20))+'\n')
@@ -192,11 +203,10 @@ for branch in branches:
                     rt_plt = bm_plt.replace(bm_plot_dir,rt_plot_dir)
                     diff_stdout += "Comparing: [{}] <==> [{}]\n".format(bm_plt,rt_plt)
                     if os.path.isdir(rt_plt):
-                        run = subprocess.run([fcompare_exe,'--allow_diff_grids','--rel_tol',fcompare_tol,bm_plt,rt_plt],
-                                            stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                        diff_stdout += run.stdout.decode()
-                        diff_stdout += run.stderr.decode()
-                        if run.returncode: match = False
+                        ret = run([fcompare_exe,'--allow_diff_grids','--rel_tol',fcompare_tol,bm_plt,rt_plt])
+                        diff_stdout += ret.stdout.decode()
+                        diff_stdout += ret.stderr.decode()
+                        if ret.returncode: match = False
                     else:
                         diff_stdout += "{} not found!\n".format(rt_plt)
                 status.compare = "YES" if match else "NO"
