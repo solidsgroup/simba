@@ -99,7 +99,8 @@ for branch in branches:
         if (ret.returncode):
             print("\033[31m"+ret.stdout.decode())
             #print(ret.stderr.decode()+"\033[0m")
-            raise(Exception("There was an error cleaning"))
+            #raise(Exception("There was an error cleaning"))
+            print("NOTE: There was an error cleaning")
         ret = run(['git','fetch','--all'])
         build_stdout += ret.stdout.decode()
         if (ret.returncode):
@@ -120,7 +121,9 @@ for branch in branches:
             raise(Exception("There was an error pulling"))
         for d in dimensions:
             # Configure ND
-            ret = run(['./configure','--dim='+d] + alamo_configure_flags.split(' '))
+            cmd = ['./configure','--dim='+d]
+            if not alamo_configure_flags == '': cmd += alamo_configure_flags.split(' ')
+            ret = run(cmd)
             build_stdout += ret.stdout.decode()
             #print(ret.stdout.decode())
             simba.updateRegTestRun(cur,run_id,ret.returncode,conv.convert(build_stdout))

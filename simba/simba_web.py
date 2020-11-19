@@ -136,6 +136,7 @@ def table(table="Bending"):
     tables = [r[0] for r in sorted(cur.fetchall())]
     if "__tables__" in tables: tables.remove("__tables__")
 
+
     if not table: table_name = tables[0]
     else: table_name = table
 
@@ -181,7 +182,7 @@ def table(table="Bending"):
     columns.insert(1,columns.pop(columns.index('Description')))
     columns.insert(1,columns.pop(columns.index('Tags')))
 
-
+    thumbnails = find_thumbnails([d['DIR'] for d in data])
     return render_template('template.html',
                             tables=tables,
                             table_name=table,
@@ -189,9 +190,9 @@ def table(table="Bending"):
                             data=data,
                             status=status,
                             numfiles=numfiles,
-                            columns=columns)
+                            columns=columns,
+                            thumbnails=thumbnails)
 imgfiles = []
-
 def find_images(path):
     print("Path is ",path)
     global imgfiles
@@ -199,6 +200,16 @@ def find_images(path):
     imgfiles = []
     for fmt in img_fmts: imgfiles += glob.glob(path+'/*'+fmt)
     imgfiles.sort()
+
+def find_thumbnails(paths):
+    thumbnails = []
+    for path in paths:
+        img_fmts = ['.jpg', '.jpeg', '.png', '.gif','.svg']
+        tmp_files = []
+        for fmt in img_fmts: tmp_files += glob.glob(path+'/*'+fmt)
+        if len(tmp_files) > 0: thumbnails.append(sorted(tmp_files)[0].replace("/","%"))
+        else: thumbnails.append("")
+    return thumbnails
 
 def find_tarballs(path):
     global tarballfiles
@@ -217,6 +228,14 @@ def find_thermo(path):
 def serve_image(number):
     global imgfiles
     return send_file(imgfiles[int(number)],cache_timeout=-1)
+
+@app.route('/thumbnail/<number>')
+#@requires_auth
+def serve_thumbnail(number):
+    print(number.replace("%","/"))
+    #global thumbnails
+    return send_file(number.replace("%","/"),cache_timeout=-1)
+    #return number;
 
 @app.route('/metadata/')
 #@requires_auth
