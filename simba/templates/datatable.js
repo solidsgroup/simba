@@ -34,4 +34,10 @@ $(document).ready(function() {
     } );
     table.buttons().container()
         .appendTo( '#bigtable_wrapper .col-sm-6:eq(0)' );
+
+    $('#bigtable tbody').on( 'click', 'tr', function () {
+	$(this).toggleClass('selected');
+	$(this).find('input').prop("checked",$(this).hasClass('selected'));
+    } );
+ 
 });
