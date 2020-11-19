@@ -77,8 +77,9 @@ for table in tables:
     #
     # Update/create the chosen table so all the values are represented
     #
-    simba.updateTable(cur,table['name'],types,"results",False)
     entries = simba.getTableEntries(cur,table['name'])
+    if len(entries) > 0:
+        simba.updateTable(cur,table['name'],types,"results",False)
 
     #
     # If there are tables to delete, delete them
@@ -136,6 +137,9 @@ for table in tables:
             for b in bad:
                 print('\033[31mbad       ',b,'\033[1;0m')
     
+    if len(entries) > 0:
+        simba.updateTable(cur,table['name'],types,"results",False)
+
 db.commit()
 db.close()
     

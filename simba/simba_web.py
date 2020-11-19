@@ -104,13 +104,18 @@ Markdown(app)
 app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route("/", methods=['GET','POST'])
-#@requires_auth
 def root():
-    return "<h2>SIMBA Main Page</h2>"
+    #if request.method == 'POST':
+    #    items = request.form.items()
+    #    for f in items:
+    #        print(f)    
+    return table(None)
 
+@app.route("/table/", methods=['GET','POST'])
+def table_default():
+    return table(None)
 @app.route("/table/<table>", methods=['GET','POST'])
-def table(table="Bending"):
-    print("CWD CWD CWD", pathlib.Path.cwd())
+def table(table):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
@@ -119,6 +124,10 @@ def table(table="Bending"):
         if request.form.get('table-description') and not args.safe:
             print(request.form.get('table-description'))
             cur.execute("UPDATE __tables__ SET Description = ? WHERE NAME = ?;", (request.form.get('table-description'), table))
+        if request.form.get('action') == 'delete-table' and not args.safe:
+            table_to_delete=request.form.get('table-name')
+            cur.execute('DROP TABLE "{}";'.format(table_to_delete))
+            cur.execute('DELETE FROM __tables__ WHERE NAME = "{}";'.format(table_to_delete))
         items = request.form.items()
         for f in items:
             print(f)
@@ -132,11 +141,13 @@ def table(table="Bending"):
 
 
 
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    tables = [r[0] for r in sorted(cur.fetchall())]
-    if "__tables__" in tables: tables.remove("__tables__")
-
-
+    cur.execute("SELECT NAME, NumEntries FROM __tables__")
+    tables = []
+    counts = []
+    for d in cur.fetchall():
+        tables.append(d[0])
+        counts.append(d[1])
+    
     if not table: table_name = tables[0]
     else: table_name = table
 
@@ -157,7 +168,6 @@ def table(table="Bending"):
 
     data = []
     for d in rawdata: data.append(dict(zip(columns,d)))
-
 
     cur.execute("SELECT Description FROM __tables__ WHERE Name = \"" + table_name  + "\"")
     desc = list(cur.fetchall()[0])[0]
@@ -185,6 +195,7 @@ def table(table="Bending"):
     thumbnails = find_thumbnails([d['DIR'] for d in data])
     return render_template('template.html',
                             tables=tables,
+                           counts=counts,
                             table_name=table,
                             table_description=desc,
                             data=data,

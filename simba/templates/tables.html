@@ -63,19 +63,21 @@
 
 <h2>Tables</h2>
 <div class="list-group">
-  {% for tab in tables %}
+  {% for i in range(0,tables|length) %}
   {% if table_name is not sameas "__tables__" %}
-  {% if table_name == tab %}
-  <a href="/table/{{tab}}" class="list-group-item active">
-	{{tab}}
+  {% if table_name == tables[i] %}
+  <a href="/table/{{tables[i]}}" class="list-group-item active">
+    {{tables[i]}}
+    {% if counts[i] %}<span class="label label-warning">{{counts[i]}}</span> {% endif %}
 	<form class="pull-right" action="/table/{{table}}" method="post">
 	<button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#confirm-rename">Rename</button>
 	<button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#confirm-delete">Delete</button>
 	</form>
   </a>
   {% else %}
-  <a href="/table/{{tab}}" class="list-group-item">
-	{{tab}}
+  <a href="/table/{{tables[i]}}" class="list-group-item">
+	{{tables[i]}}
+    {% if counts[i] %}<span class="label label-warning">{{counts[i]}}</span> {% endif %}
   </a>
   {% endif %}
   {% endif %}

@@ -48,7 +48,15 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
     cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [r[0] for r in cur.fetchall()]
     if "__tables__" not in tables:
-        cur.execute('CREATE TABLE __tables__ (NAME UNIQUE, Description VARCHAR(8000));')
+        cur.execute('CREATE TABLE __tables__ (NAME UNIQUE, Description VARCHAR(8000), NumEntries INT);')
+    else:
+        #
+        # Backwards compatibility - update __tables__ in case NumEntries is not a field
+        #
+        cur.execute('PRAGMA table_info(__tables__);')
+        columns = [d[1] for d in cur.fetchall()]
+        if "NumEntries" not in columns:
+            cur.execute('ALTER TABLE __tables__ ADD NumEntries INT;')
     if tablename not in tables:
         if mode == "results":
             cur.execute('CREATE TABLE "{}" ('.format(tablename) +
@@ -89,6 +97,10 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
             cur.execute('ALTER TABLE "{}" ADD "{}" {}'.format(tablename,key,types[key]))
             if (verbose): print('\033[1;34mADDED COLUMN\033[1;0m: ' + key + ' to ' + tablename)
 
+    # Finally, update __tables__ with # of records
+    cur.execute('SELECT * FROM "{}"'.format(tablename));
+    cur.execute('UPDATE __tables__ SET NumEntries = {} WHERE NAME = "{}"'.format(len(cur.fetchall()),tablename))
+
 
 def updateRecord(cur,tablename,data,hash,directory,verbose=True):
     new_dir = directory
@@ -123,6 +135,9 @@ def updateRecord(cur,tablename,data,hash,directory,verbose=True):
         cur.execute('UPDATE "{}" SET DIFF = ? WHERE HASH = ?'.format(tablename),(data['DIFF'],hash))
 
 def getTableEntries(cur,tablename):
+    
+    cur.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="{}";'.format(tablename))
+    if len(cur.fetchall()) == 0: return []
     cur.execute('SELECT HASH,DIR from "{}"'.format(tablename))
     return cur.fetchall()
 
