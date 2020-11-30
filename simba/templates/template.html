@@ -1,6 +1,25 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<style>
+.zoom {
+  transition: transform .2s; /* Animation */
+  margin: 0 auto;
+}
+
+.zoom:hover {
+  transform: scale(3); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}
+
+#bigtable tr td {
+    word-break: break-word;
+    vertical-align: top;
+}
+
+</style>
+
+<div class="zoom"></div>
+
 <div class="container-fluid">
   <div class="row justify-content-start">
     <div class="col-md-4">
@@ -70,14 +89,19 @@
     	    	    	    	<span class="glyphicon glyphicon-remove"/></span>
 	    	    	    	{% endif %}
     	    	    		</span>&nbsp;
-						{% endif %}
+					{% endif %}
 					{% endif %}
 					{% if numfiles|length > 0 %}{% if numfiles[j] > 0 %}
 						<span class="label label-primary"> {{numfiles[j]}} </span>
-						<img height="60px" src="/thumbnail/{{thumbnails[j]}}"/>
 					{% endif %}
 					</td>
 				{% endif %}
+			{% elif columns[i] == "Thumbnail"%}
+                                <td>
+                                  {% if numfiles[j] > 0 %}
+                                  <img height="60px" src="/thumbnail/{{thumbnails[j]}}" class="zoom"/>
+                                  {% endif %}
+                                </td>
 			{% elif columns[i] == "Tags" and data[j]['Tags']%}
 				<td>
 					{% set taglist = data[j]['Tags'].split(',') %}

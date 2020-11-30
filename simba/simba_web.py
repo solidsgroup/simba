@@ -191,6 +191,7 @@ def table(table):
     columns.insert(0,columns.pop(columns.index('DIR')))
     columns.insert(1,columns.pop(columns.index('Description')))
     columns.insert(1,columns.pop(columns.index('Tags')))
+    columns.insert(1,"Thumbnail")
 
     thumbnails = find_thumbnails([d['DIR'] for d in data])
     return render_template('template.html',

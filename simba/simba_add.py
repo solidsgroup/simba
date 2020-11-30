@@ -78,7 +78,7 @@ for table in tables:
     # Update/create the chosen table so all the values are represented
     #
     entries = simba.getTableEntries(cur,table['name'])
-    if len(entries) > 0:
+    if len(entries) > 0 or len(directories) > 0:
         simba.updateTable(cur,table['name'],types,"results",False)
 
     #
@@ -121,12 +121,15 @@ for table in tables:
         if args.mode == "add":
             if status == "new":
                 print('\033[32madded        ',dirname,'\033[1;0m')
+                simba.updateTable(cur,table['name'],types,"results",False) ## TODO remove this
                 simba.updateRecord(cur,table['name'],data,dirhash,dirname,False)
-            if status == "moved":
+            elif status == "moved":
                 print('\033[33mmoved     ',moved[-1][0],'\033[1;0m')
                 print('\033[33m             ⮡',moved[-1][1],'\033[1;0m')
                 simba.updateRecord(cur,table['name'],data,dirhash,dirname,False)
-
+            elif args.all:
+                print('\033[32mupdated      ',dirname,'\033[1;0m')
+                simba.updateRecord(cur,table['name'],data,dirhash,dirname,False)
     if args.mode == "status":
         if len(new)>0 or len(moved)>0 or len(bad)>0:
             for n in new:
@@ -137,7 +140,7 @@ for table in tables:
             for b in bad:
                 print('\033[31mbad       ',b,'\033[1;0m')
     
-    if len(entries) > 0:
+    if len(entries) > 0 or len(directories) > 0:
         simba.updateTable(cur,table['name'],types,"results",False)
 
 db.commit()
