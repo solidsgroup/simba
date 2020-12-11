@@ -67,9 +67,13 @@
 			{% elif columns[i] == "DIR" %}
 				<td>
 				<input type="checkbox" name="hash_{{data[j]['HASH']}}" value="{{data[j]['DIR']}}"/>
-				<a href="/table/{{table_name}}/entry/{{data[j]['HASH']}}">{{data[j]['DIR']}} </a> 
-				{% if data[j]['DIFF'] %}
-					<a target="_blank" href="/table/{{table_name}}/entry/{{data[j]['HASH']}}/diff"><span class="label label-default"> DIFF</span></a>
+				{% if data[j]['DIR'] != "null"%}
+				        <a href="/table/{{table_name}}/entry/{{data[j]['HASH']}}">{{data[j]['DIR']}} </a> 
+				{% else %}
+					<a href="/table/{{table_name}}/entry/{{data[j]['HASH']}}">{{data[j]['HASH']}} </a> (Directory deleted) 
+				{% endif %}
+				{% if data[j]['DIFF'] and data[j]['DIR'] != "null"%}
+				        <a target="_blank" href="/table/{{table_name}}/entry/{{data[j]['HASH']}}/diff"><span class="label label-default"> DIFF</span></a>
 				{% endif %}
 				{% if status[j] %}
 						{% if "Complete" in status[j] %} 
@@ -98,7 +102,7 @@
 				{% endif %}
 			{% elif columns[i] == "Thumbnail"%}
                                 <td>
-                                  {% if numfiles[j] > 0 %}
+                                  {% if numfiles[j] > 0 and data[j]['DIFF'] != "null" %}
                                   <img height="60px" src="/thumbnail/{{thumbnails[j]}}" class="zoom"/>
                                   {% endif %}
                                 </td>

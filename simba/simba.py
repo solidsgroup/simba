@@ -117,13 +117,14 @@ def updateRecord(cur,tablename,data,hash,directory,verbose=True):
         
     
     cur.execute('UPDATE "{}" SET DIR = ? WHERE HASH = ?'.format(tablename),(new_dir,hash))
+
+    if not data: return
+
     for col in data:
         try:
             cur.execute('UPDATE "{}" SET "{}" = ? WHERE HASH = ?'.format(tablename,col),(data[col],hash))
         except sqlite3.IntegrityError as err:
             print("WARNING! There was an issue...", err)
-
-
     
     if old_dir:
         if (old_dir == new_dir):
@@ -135,7 +136,6 @@ def updateRecord(cur,tablename,data,hash,directory,verbose=True):
         cur.execute('UPDATE "{}" SET DIFF = ? WHERE HASH = ?'.format(tablename),(data['DIFF'],hash))
 
 def getTableEntries(cur,tablename):
-    
     cur.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="{}";'.format(tablename))
     if len(cur.fetchall()) == 0: return []
     cur.execute('SELECT HASH,DIR from "{}"'.format(tablename))

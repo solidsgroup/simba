@@ -143,6 +143,26 @@ for table in tables:
     if len(entries) > 0 or len(directories) > 0:
         simba.updateTable(cur,table['name'],types,"results",False)
 
+    
+    entries = simba.getTableEntries(cur,table['name'])
+    for e in entries:
+        directory = e[1]
+
+        if directory == 'null': continue
+
+        tablehash = e[0]
+        dirhash   = scripts.getHash(directory)
+
+        ghost = False
+        if not dirhash: ghost = True
+        if tablehash != dirhash: ghost = True
+
+        if ghost:
+            print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
+            simba.updateRecord(cur,table['name'], None, tablehash, 'null')
+        
+
+
 db.commit()
 db.close()
     
