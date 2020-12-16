@@ -5,7 +5,4 @@ Documentation for alamo
    :maxdepth: 2
    :caption: Contents:
 
-
-
-
-
+.. include:: ../../README.rst
