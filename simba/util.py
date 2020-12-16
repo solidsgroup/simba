@@ -40,7 +40,7 @@ def getSimbaDir(path):
         return (path/".simba").absolute()
     else:
         if (path == path.parent):
-            raise(Exception("No .simba directory found"))
+            raise(Exception("No .simba directory found in " + str(path)))
         else:
             return(getSimbaDir(path.parent))
 #simbaPath = getSimbaDir(pathlib.Path.cwd())

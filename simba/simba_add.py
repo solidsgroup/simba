@@ -6,7 +6,8 @@ import os
 import re
 import simba
 import configparser
-import glob
+from glob import *
+from os.path import *
 import importlib.util
 import pathlib
 
@@ -35,27 +36,55 @@ if (simbaPath/"data.ini").is_file():
     config = configparser.ConfigParser()
     config.read(simbaPath/"data.ini")
     for sec in config.sections():
-        multisecs = glob.glob(str(simbaPath/sec))
-        if len(multisecs) > 0:
-            print(util.red(simbaPath/sec))
-            for subsec in multisecs:
-                #print("\t",util.green(simbaPath/subsec))
-                #print("\t\t",(simbaPath/subsec).name)
-                if "name" in config[sec]:
-                    tablename = config[sec]["name"].replace("$VARDIR",str((simbaPath/subsec).name))
-                else:
-                    tablename = str((simbaPath/subsec).name)
-
-                #tablename = tablename.replace('-','_')
-                tablematch = config[sec]["match"].replace("$VARPATH",str(simbaPath/subsec))
-
-                table = {"name":tablename, "match":tablematch}
-                tables.append(table)
+        if len(sec.split(' ')) == 1:
+            # option 1: name only
+            names = [sec]
+        elif "for" in sec.split(' '):
+            # option 2: execute python query
+            exec("names = [" + sec + "]")
         else:
+            # option 3: treat as list of names
+            names = sec.split(' ')
+
+        match = config[sec]['match']
+        
+        for name in names:
+            if config.has_option(sec,'name'): tablename = config[sec]['name'].replace("$NAME",name)
+            else: tablename = name
+
             if '-' in sec:
                 raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
-            table = {"name":sec, "match":config[sec]["match"]}
+
+            table = {"name":tablename, "match":match.replace("$NAME",name)}
             tables.append(table)
+
+        #print(names)
+        #continue
+
+        #multisecs = glob.glob(str(simbaPath/".."/sec))
+        #print(str(simbaPath/".."/sec))
+        #print(multisecs)
+        #if len(multisecs) > 0:
+        #    print(util.red(simbaPath/sec))
+        #    for subsec in multisecs:
+        #        if "name" in config[sec]:
+        #            tablename = config[sec]["name"].replace("$VARDIR",str((simbaPath/subsec).name))
+        #        else:
+        #            tablename = str((simbaPath/subsec).name)
+        #
+        #        #tablename = tablename.replace('-','_')
+        #        tablematch = config[sec]["match"].replace("$VARPATH",str(simbaPath/subsec))
+        #        table = {"name":tablename, "match":tablematch}
+        #        tables.append(table)
+        #        print(tablename,tablematch)
+        #else:
+        #    if '-' in sec:
+        #        raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
+        #    table = {"name":sec, "match":config[sec]["match"]}
+        #    tables.append(table)
+else:
+    print("No data.ini file found")
+        
 
 db = sqlite3.connect(args.database if args.database.endswith('.db') else args.database+'.db')
 db.text_factory = str
@@ -63,8 +92,7 @@ cur= db.cursor()
 
 for table in tables:
     types = dict()
-    directories = sorted(glob.glob(str(simbaPath/table["match"])))
-
+    directories = sorted(glob(str(simbaPath/".."/table["match"])))
 
     #
     # Scan metadata files to determine columns

@@ -9,7 +9,9 @@ Basic commands:
     add     Update database with all new records
     status  Print new or modified records
     view    Browse records
-    web     Start web server""")
+    web     Start web server
+    init    Initialize simba in current directory
+""")
 
 elif sys.argv[1] in ["add","status"]:
     from simba import simba_add
@@ -17,6 +19,8 @@ elif sys.argv[1] in ["view"]:
     from simba import simba_view
 elif sys.argv[1] in ["web"]:
     from simba import simba_web
+elif sys.argv[1] in ["init"]:
+    from simba import simba_init
 elif sys.argv[1] in ["rt"]:
     print("Starting regression test")
     from simba import simba_rt
