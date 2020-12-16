@@ -219,7 +219,7 @@ def find_thumbnails(paths):
         img_fmts = ['.jpg', '.jpeg', '.png', '.gif','.svg']
         tmp_files = []
         for fmt in img_fmts: tmp_files += glob.glob(path+'/*'+fmt)
-        if len(tmp_files) > 0: thumbnails.append(sorted(tmp_files)[0].replace("/","%"))
+        if len(tmp_files) > 0: thumbnails.append(sorted(tmp_files)[0].replace("/",r"DIRDIR"))
         else: thumbnails.append("")
     return thumbnails
 
@@ -244,9 +244,8 @@ def serve_image(number):
 @app.route('/thumbnail/<number>')
 #@requires_auth
 def serve_thumbnail(number):
-    print(number.replace("%","/"))
     #global thumbnails
-    return send_file(number.replace("%","/"),cache_timeout=-1)
+    return send_file(number.replace(r"DIRDIR","/"),cache_timeout=-1)
     #return number;
 
 @app.route('/metadata/')
