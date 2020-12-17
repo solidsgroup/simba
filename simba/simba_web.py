@@ -14,6 +14,7 @@ import webbrowser
 from threading import Timer
 import pathlib
 import webbrowser
+import socket
 
 from simba import util
 from simba import simba
@@ -194,7 +195,7 @@ def table(table):
     columns.insert(1,"Thumbnail")
 
     thumbnails = find_thumbnails([d['DIR'] for d in data])
-    return render_template('template.html',
+    return render_template('template.html', hostname=socket.gethostname(),
                             tables=tables,
                            counts=counts,
                             table_name=table,
@@ -318,7 +319,7 @@ def table_entry(table,a_entry):
     columns.insert(1,columns.pop(columns.index('Description')))
     columns.insert(1,columns.pop(columns.index('Tags')))
 
-    return render_template('detail.html',
+    return render_template('detail.html',hostname=socket.gethostname(),
                            table=table,
                            entry=entry,
                            columns=columns,
@@ -433,7 +434,7 @@ def regtest(a_regtest):
     data = []
     for d in rawdata: data.append(dict(zip(columns,d)))
 
-    return render_template('regtest.html',
+    return render_template('regtest.html',hostname=socket.gethostname(),
                             runs=runs,
                             tests=test_names,
                             data=data,
