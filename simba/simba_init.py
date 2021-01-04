@@ -21,10 +21,14 @@ args=parser.parse_args()
 
 print("Hello!")
 
-os.mkdir(".simba")
-configfile = open(".simba/config","w")
+try:
+    os.mkdir(".simba")
+except FileExistsError:
+    print("Note: .simba directory already exists")
+
 if args.include:
     print("including!")
+    configfile = open(".simba/config","w")
     if not os.path.isdir(args.include):
         raise(Exception(args.include + " is not a valid path"))
     if not os.path.isdir(args.include + "/.simba"):
@@ -35,34 +39,44 @@ if args.include:
     configfile.write("[include]\n")
     configfile.write(str(pathlib.Path(args.include + "/.simba/config\n").absolute()))
 else:
-    configfile.write("""
+    if not os.path.isfile(".simba/config"):
+        configfile = open(".simba/config","w")
+        configfile.write("""
 [scripts]
 parseOutputDir=./parseOutputDir.py
 getHash=./getHash.py
 """)
+        configfile.close()
 
-    podfile  = open(".simba/parseOutputDir.py","w")
-    podfile.write("""
+    if not os.path.isfile(".simba/parseOutputDir.py"):
+        podfile  = open(".simba/parseOutputDir.py","w")
+        podfile.write("""
 def parseOutputDir(self,directory):
     print("WARNING: This is the default parseOutputDir script!")
     print("         I cannot do anything!")
     return None
 """)
-    podfile.close()
+        podfile.close()
+    else:
+        print("Note: parseOutputDir.py already in place")
+    
 
-    ghfile = open(".simba/getHash.py","w")
-    ghfile.write("""
+        
+    if not os.path.isfile(".simba/getHash.py"):
+        ghfile = open(".simba/getHash.py","w")
+        ghfile.write("""
 def getHash(self,directory):
     print("WARNING: This is the default getHash script!")
     print("         I cannot do anything!")
 """)
-    ghfile.close()
+        ghfile.close()
+    else:
+        print("Note: getHash.py already in place")
 
                  
-configfile.close()
-
-datafile = open(".simba/data.ini","w")
-datafile.write(
+if not os.path.isfile(".simba/data.ini"):
+    datafile = open(".simba/data.ini","w")
+    datafile.write(
 """
 ##
 ## This is the data.ini file, where you tell SimBA how to
@@ -118,9 +132,10 @@ datafile.write(
 #match = test/$NAME/output*
 #
 """)
+else:
+    print("Note: data.ini already exists")
 
 
-
-simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-config    = util.getConfigFile(simbaPath)
-scripts   = util.getScripts(config)
+#simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+#config    = util.getConfigFile(simbaPath)
+#scripts   = util.getScripts(config)

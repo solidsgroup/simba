@@ -194,7 +194,7 @@ def table(table):
     columns.insert(1,columns.pop(columns.index('Tags')))
     columns.insert(1,"Thumbnail")
 
-    thumbnails = find_thumbnails([d['DIR'] for d in data])
+    thumbnails = find_thumbnails([str(simbaPath)+"/../"+d['DIR'] for d in data])
     return render_template('template.html', hostname=socket.gethostname(),
                             tables=tables,
                            counts=counts,
