@@ -29,6 +29,48 @@
 </script>
 
 <!--  ===================================   -->
+<!--  APPLY TAG DIALOG                      -->
+<!--  ===================================   -->
+
+<div class="modal fade" id="apply-tags-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+		<b>Apply tags to the following records:</b>
+      </div>
+      <div class="modal-body">
+	<form action="/table/{{table_name}}" method="post">
+	  <p id="apply-tags-dirs"></p>
+	  <input type="hidden" name="apply-tags-hashes" id="apply-tags-hashes" />
+	  <label for="usr">Insert tags</label>
+	  <input type="text" class="form-control" name="apply-tags-tags">
+	  <div class="modal-footer">
+	    <button type="submit" class="btn btn-warning btn-ok" name="action" value="apply-tags"> Apply Tags</button>
+	    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	  </div>
+	</form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    $('#apply-tags-modal').on('show.bs.modal', function(e) {
+	var hashes = "";
+	var dirs = "";
+	$("#deleterecordsform input:checkbox:checked").each(function() {
+	    //$("#horatio").text("hello mother");
+	    hashes += $(this).attr('name') + " ";
+	    dirs += $(this).val() + " ";
+	});
+	//$("#apply-tags-dirs").text(dirs);
+	$("#apply-tags-dirs").text(hashes);
+	$("#apply-tags-hashes").attr('value',hashes);
+	$(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+</script>
+
+
+<!--  ===================================   -->
 <!--  RENAME TABLE DIALOG                   -->
 <!--  ===================================   -->
 
@@ -52,12 +94,6 @@
     </div>
   </div>
 </div>
-<script>
-  $('#confirm-delete').on('show.bs.modal', function(e) {
-  alert(e);
-    $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-  });
-</script>
 
 
 

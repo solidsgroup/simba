@@ -121,26 +121,36 @@ def table(table):
     db.text_factory = str
     cur= db.cursor()
 
+    print("HEY EVERYBODY")
     if request.method == 'POST':
+        print("POSTING")
         if request.form.get('table-description') and not args.safe:
             print(request.form.get('table-description'))
             cur.execute("UPDATE __tables__ SET Description = ? WHERE NAME = ?;", (request.form.get('table-description'), table))
-        if request.form.get('action') == 'delete-table' and not args.safe:
+        elif request.form.get('action') == 'delete-table' and not args.safe:
             table_to_delete=request.form.get('table-name')
             cur.execute('DROP TABLE "{}";'.format(table_to_delete))
             cur.execute('DELETE FROM __tables__ WHERE NAME = "{}";'.format(table_to_delete))
-        items = request.form.items()
-        for f in items:
-            print(f)
-            if str(f[0]).startswith('hash_'):
-                hash = str(f[0]).replace('hash_','')
-                dir = str(f[1])
-                print("DELETING ",hash)
-                cur.execute("DELETE FROM " + table + " WHERE HASH = ?;",(hash,))
-                print("DELETING ",dir)
-                os.system('rm -rf ' + dir)
-
-
+            items = request.form.items()
+            for f in items:
+                print(f)
+                if str(f[0]).startswith('hash_'):
+                    hash = str(f[0]).replace('hash_','')
+                    dir = str(f[1])
+                    print("DELETING ",hash)
+                    cur.execute("DELETE FROM " + table + " WHERE HASH = ?;",(hash,))
+                    print("DELETING ",dir)
+                    os.system('rm -rf ' + dir)
+        elif request.form.get('action') == 'apply-tags' and not args.safe:
+            hashes = ' '.join([h.replace(' ','').replace('hash_','') for h in request.form.get('apply-tags-hashes').replace('  ',' ').split(' ')]).split()
+            tags = request.form.get('apply-tags-tags')#.split(' ')
+            print("Applying tags",hashes)
+            #print("Applying tags",tags)
+            for h in hashes:
+                cur.execute('UPDATE "{}" SET Tags = ? WHERE HASH = ?'.format(table),(tags,h))
+            
+        else:
+            print("I'M POSTING BUT I DON'T KNOW WHAT TO POST")
 
     cur.execute("SELECT NAME, NumEntries FROM __tables__")
     tables = []
