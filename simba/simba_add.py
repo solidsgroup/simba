@@ -38,6 +38,8 @@ if (simbaPath/"data.ini").is_file():
     for sec in config.sections():
         if len(sec.split(' ')) == 1:
             # option 1: name only
+            if '-' in sec:
+                raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
             names = [sec]
         elif "for" in sec.split(' '):
             # option 2: execute python query
@@ -52,36 +54,10 @@ if (simbaPath/"data.ini").is_file():
             if config.has_option(sec,'name'): tablename = config[sec]['name'].replace("$NAME",name)
             else: tablename = name
 
-            if '-' in sec:
-                raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
 
             table = {"name":tablename, "match":match.replace("$NAME",name)}
             tables.append(table)
 
-        #print(names)
-        #continue
-
-        #multisecs = glob.glob(str(simbaPath/".."/sec))
-        #print(str(simbaPath/".."/sec))
-        #print(multisecs)
-        #if len(multisecs) > 0:
-        #    print(util.red(simbaPath/sec))
-        #    for subsec in multisecs:
-        #        if "name" in config[sec]:
-        #            tablename = config[sec]["name"].replace("$VARDIR",str((simbaPath/subsec).name))
-        #        else:
-        #            tablename = str((simbaPath/subsec).name)
-        #
-        #        #tablename = tablename.replace('-','_')
-        #        tablematch = config[sec]["match"].replace("$VARPATH",str(simbaPath/subsec))
-        #        table = {"name":tablename, "match":tablematch}
-        #        tables.append(table)
-        #        print(tablename,tablematch)
-        #else:
-        #    if '-' in sec:
-        #        raise Exception("Table name "+sec+" contains a hyphen; hyphens are not allowed.")
-        #    table = {"name":sec, "match":config[sec]["match"]}
-        #    tables.append(table)
 else:
     print("No data.ini file found")
         
@@ -92,13 +68,14 @@ cur= db.cursor()
 
 for table in tables:
     types = dict()
-    directories = sorted(glob(str(simbaPath/".."/table["match"])))
+    #directories = sorted(glob(str(simbaPath/".."/table["match"])))
+    directories = sorted(glob(str(table["match"])))
 
     #
     # Scan metadata files to determine columns
     #
     for directory in directories:
-        data = scripts.parseOutputDir(directory)
+        data = scripts.parseOutputDir(str(simbaPath)+"/../"+directory)
         if data:
             types.update(simba.getTypes(data))
         
@@ -125,9 +102,9 @@ for table in tables:
     moved = []
     bad = []
     for directory in directories:
-        dirhash = scripts.getHash(directory)
-        dirname = os.path.abspath(directory)
-        data = scripts.parseOutputDir(directory)
+        dirhash = scripts.getHash(str(simbaPath)+"/../"+directory)
+        dirname = directory
+        data = scripts.parseOutputDir(str(simbaPath)+"/../"+directory)
         if not data or not dirhash:
             bad.append(dirname)
             continue
