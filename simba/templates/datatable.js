@@ -29,6 +29,16 @@ $(document).ready(function() {
                     } );
                   }
                 
+                },
+                {
+                  text:'Hide All Columns',
+                  action: function()
+                  {
+                    table.columns().every( function ( ) {
+                      this.visible(false);
+                    } );
+                  }
+                
                 }
               ],
     } );

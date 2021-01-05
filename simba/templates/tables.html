@@ -29,6 +29,43 @@
 </script>
 
 <!--  ===================================   -->
+<!--  DELETE MULTIPLE RECORDS DIALOG        -->
+<!--  ===================================   -->
+
+<div class="modal fade" id="delete-records-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+		<b>Delete the following records?</b>
+      </div>
+      <div class="modal-body">
+	<form action="/table/{{table_name}}" method="post">
+	  <p id="delete-records-dirs"></p>
+	  <input type="hidden" name="delete-records-hashes" id="delete-records-hashes" />
+	  <div class="modal-footer">
+	    <button type="submit" class="btn btn-danger btn-ok" name="action" value="delete-records"> <span class="glyphicon glyphicon-trash" ></span> Delete</button>
+	    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	  </div>
+	</form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    $('#delete-records-modal').on('show.bs.modal', function(e) {
+	var hashes = "";
+	var dirs = "";
+	$("#deleterecordsform input:checkbox:checked").each(function() {
+	    hashes += $(this).attr('name') + " ";
+	    dirs += $(this).val() + " ";
+	});
+	$("#delete-records-dirs").text(dirs);
+	$("#delete-records-hashes").attr('value',hashes);
+	$(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+</script>
+
+<!--  ===================================   -->
 <!--  APPLY TAG DIALOG                      -->
 <!--  ===================================   -->
 
@@ -46,6 +83,7 @@
 	  <input type="text" class="form-control" name="apply-tags-tags">
 	  <div class="modal-footer">
 	    <button type="submit" class="btn btn-warning btn-ok" name="action" value="apply-tags"> Apply Tags</button>
+	    <button type="submit" class="btn btn-warning btn-ok" name="action" value="append-tags"> Append Tags</button>
 	    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	  </div>
 	</form>

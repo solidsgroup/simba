@@ -141,14 +141,50 @@ def table(table):
                     cur.execute("DELETE FROM " + table + " WHERE HASH = ?;",(hash,))
                     print("DELETING ",dir)
                     os.system('rm -rf ' + dir)
+
+        #
+        # DELETE MULITPLE RECORDS
+        #
+        elif request.form.get('action') == 'delete-records' and not args.safe:
+            hashes = ' '.join([h.replace(' ','').replace('hash_','')
+                               for h in request.form.get('delete-records-hashes').replace('  ',' ').split(' ')]).split()
+            dirs = ' '.join([h.replace(' ','').replace('hash_','')
+                               for h in request.form.get('delete-records-hashes').replace('  ',' ').split(' ')]).split()
+            tags = request.form.get('apply-tags-tags')#.split(' ')
+            for h, d in zip(hashes,dirs):
+                print("Deleting record with hash = ", h)
+                cur.execute('DELETE FROM "{}" WHERE HASH = ?'.format(table),(h,))
+                print("Deleting directory ", d)
+                os.system('rm -rf ' + d)
+
+        #
+        # APPLY TAGS
+        #
         elif request.form.get('action') == 'apply-tags' and not args.safe:
-            hashes = ' '.join([h.replace(' ','').replace('hash_','') for h in request.form.get('apply-tags-hashes').replace('  ',' ').split(' ')]).split()
+            print("======================================")
+            print("    APPLYING TAGS                     ")
+            print("======================================")
+            hashes = ' '.join([h.replace(' ','').replace('hash_','')
+                               for h in request.form.get('apply-tags-hashes').replace('  ',' ').split(' ')]).split()
             tags = request.form.get('apply-tags-tags')#.split(' ')
             print("Applying tags",hashes)
             #print("Applying tags",tags)
             for h in hashes:
                 cur.execute('UPDATE "{}" SET Tags = ? WHERE HASH = ?'.format(table),(tags,h))
             
+        elif request.form.get('action') == 'append-tags' and not args.safe:
+            print("======================================")
+            print("    APPENDING TAGS                    ")
+            print("======================================")
+            hashes = ' '.join([h.replace(' ','').replace('hash_','')
+                               for h in request.form.get('apply-tags-hashes').replace('  ',' ').split(' ')]).split()
+            tags = request.form.get('apply-tags-tags')#.split(' ')
+            for h in hashes:
+                cur.execute('UPDATE "{}" SET Tags=Tags||","||? WHERE HASH = ?'.format(table),(tags,h))
+
+        #
+        # SHOULD NEVER GET TO THIS POINT
+        #
         else:
             print("I'M POSTING BUT I DON'T KNOW WHAT TO POST")
 
