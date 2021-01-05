@@ -353,7 +353,8 @@ def table_entry(table,a_entry):
 
     data = dict(zip(columns,d))
 
-    find_images(data['DIR'])
+    find_images(str(simbaPath)+"/../"+data['DIR'])
+    #find_images(data['DIR'])
     find_tarballs(data['DIR'])
     metadatafile=data['DIR']+"/metadata"
     find_thermo(data['DIR'])
