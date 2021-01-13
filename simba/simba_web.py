@@ -180,7 +180,7 @@ def table(table):
                                for h in request.form.get('apply-tags-hashes').replace('  ',' ').split(' ')]).split()
             tags = request.form.get('apply-tags-tags')#.split(' ')
             for h in hashes:
-                cur.execute('UPDATE "{}" SET Tags=Tags||","||? WHERE HASH = ?'.format(table),(tags,h))
+                cur.execute('UPDATE "{}" SET Tags= CASE WHEN Tags IS NULL THEN ? ELSE Tags||","||? END WHERE HASH = ?'.format(table),(tags,tags,h))
 
         #
         # SHOULD NEVER GET TO THIS POINT
