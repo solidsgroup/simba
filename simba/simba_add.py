@@ -75,7 +75,12 @@ for table in tables:
     # Scan metadata files to determine columns
     #
     for directory in directories:
-        data = scripts.parseOutputDir(str(simbaPath)+"/../"+directory)
+        try:
+            data = scripts.parseOutputDir(str(simbaPath)+"/../"+directory)
+        except Exception as e:
+            data = None
+            print("Error in ", directory)
+            print(e)
         if data:
             types.update(simba.getTypes(data))
         
@@ -83,7 +88,7 @@ for table in tables:
     # Update/create the chosen table so all the values are represented
     #
     entries = simba.getTableEntries(cur,table['name'])
-    if len(entries) > 0 or len(directories) > 0:
+    if (len(entries) > 0 or len(directories) > 0) and args.mode=='add' :
         simba.updateTable(cur,table['name'],types,"results",False)
 
     #
@@ -103,9 +108,13 @@ for table in tables:
     bad = []
     undead = []
     for directory in directories:
-        dirhash = scripts.getHash(str(simbaPath)+"/../"+directory)
         dirname = directory
-        data = scripts.parseOutputDir(str(simbaPath)+"/../"+directory)
+        try:
+            dirhash = scripts.getHash(str(simbaPath)+"/../"+directory)
+            data = scripts.parseOutputDir(str(simbaPath)+"/../"+directory)
+        except Exception as e:
+            data = None
+
         if not data or not dirhash:
             bad.append(dirname)
             continue
@@ -146,7 +155,7 @@ for table in tables:
             for b in bad:
                 print('\033[31mbad       ',b,'\033[1;0m')
     
-    if len(entries) > 0 or len(directories) > 0:
+    if (len(entries) > 0 or len(directories) > 0) and args.mode=='add':
         simba.updateTable(cur,table['name'],types,"results",False)
 
     
@@ -157,7 +166,10 @@ for table in tables:
         if directory == 'null': continue
 
         tablehash = e[0]
-        dirhash   = scripts.getHash(directory)
+        try:
+            dirhash   = scripts.getHash(directory)
+        except Exception as e:
+            dirhash = None
 
         ghost = False
         if not dirhash: ghost = True

@@ -107,21 +107,22 @@ if sys.argv[2] == "pull":
     uptodate = 0
     for t, f in zip(times,files):
         # directory location
-        localpath = localrootpath + '/./' + '/'.join(f.split('/')[:-1])
+        localpath = localrootpath + '/'.join(f.split('/')[:-1])
         remotepath = path+'/'+f
         os.makedirs(localpath,exist_ok=True)
         
         needsupdate = False
-        if (not os.path.isfile('Alamo-Runs/'+f)):
+        if (not os.path.isfile(localrootpath+f)):
             needsupdate = True
-        elif (int(os.stat('Alamo-Runs/'+f).st_mtime) < t): 
+        elif (int(os.stat(localrootpath+f).st_mtime) < t): 
             needsupdate = True
         else:
             needsupdate = False
 
+#        print(localpath,remotepath)
         if needsupdate:
             print('\033[32mcopying       ',f,'\033[1;0m')
-            ftp_client.get(remotepath,localpath+'/metadata')
+            res = ftp_client.get(remotepath,localrootpath+f)
             copied += 1
         else:
             print('\033[90mup-to-date    '+f+'\033[0m')
