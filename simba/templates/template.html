@@ -48,6 +48,10 @@
 <div class="col-sm-12">
 <h2>Table Entries</h2>
 <form action='/table/{{table_name}}' method="POST" id="deleterecordsform">
+<p>
+<button type="button" class="btn btn-danger btn-ok" data-toggle="modal" data-target="#delete-records-modal"><span class="glyphicon glyphicon-trash" ></span> Delete Selected Records</button>
+<button type="button" class="btn btn-primary btn-ok" data-toggle="modal" data-target="#apply-tags-modal" ><span class="glyphicon glyphicon-tag" ></span> Apply tag</button><br/>
+</p>
 <div class="table-responsive">
   <table id="bigtable" class="table table-striped table-bordered" style="width:100%;">
 	<thead>
@@ -128,7 +132,7 @@
   </table>
 </div>
 <button type="button" class="btn btn-danger btn-ok" data-toggle="modal" data-target="#delete-records-modal"><span class="glyphicon glyphicon-trash" ></span> Delete Selected Records</button>
-<button type="button" class="btn btn-primary btn-ok" data-toggle="modal" data-target="#apply-tags-modal" id="apply-tags-btn"><span class="glyphicon glyphicon-tag" ></span> Apply tag</button>
+<button type="button" class="btn btn-primary btn-ok" data-toggle="modal" data-target="#apply-tags-modal" ><span class="glyphicon glyphicon-tag" ></span> Apply tag</button>
 </form>
 </div>
 </div>
