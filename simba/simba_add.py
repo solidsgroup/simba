@@ -101,6 +101,7 @@ for table in tables:
     new = []
     moved = []
     bad = []
+    undead = []
     for directory in directories:
         dirhash = scripts.getHash(str(simbaPath)+"/../"+directory)
         dirname = directory
@@ -162,7 +163,7 @@ for table in tables:
         if not dirhash: ghost = True
         if tablehash != dirhash: ghost = True
 
-        if ghost:
+        if ghost and args.mode=='add':
             print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
             simba.updateRecord(cur,table['name'], None, tablehash, 'null')
         

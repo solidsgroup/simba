@@ -24,3 +24,7 @@ elif sys.argv[1] in ["init"]:
 elif sys.argv[1] in ["rt"]:
     print("Starting regression test")
     from simba import simba_rt
+elif sys.argv[1] in ["remote"]:
+    from simba import simba_remote
+else:
+    print("Command \"", sys.argv[1], "\" is not a valid command")
