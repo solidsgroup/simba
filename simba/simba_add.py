@@ -43,6 +43,7 @@ if (simbaPath/"data.ini").is_file():
             names = [sec]
         elif "for" in sec.split(' '):
             # option 2: execute python query
+            os.chdir(str(simbaPath)+'/../')
             exec("names = [" + sec + "]")
         else:
             # option 3: treat as list of names
@@ -66,10 +67,15 @@ db = sqlite3.connect(args.database if args.database.endswith('.db') else args.da
 db.text_factory = str
 cur= db.cursor()
 
+num_add = 0
+num_moved = 0
+num_bad = 0
+num_undead = 0 
+num_ghost = 0
+
 for table in tables:
     types = dict()
-    #directories = sorted(glob(str(simbaPath/".."/table["match"])))
-    directories = sorted(glob(str(table["match"])))
+    directories = [d.replace(str(simbaPath)+'/../','') for d in sorted(glob(str(str(simbaPath)+"/../"+table["match"])))]
 
     #
     # Scan metadata files to determine columns
@@ -99,6 +105,8 @@ for table in tables:
     #        cur.execute('DROP TABLE ' + tab)
 
 
+    entries = simba.getTableEntries(cur,table['name'])
+
     #
     # Scan each metadata file and add an entry to the table, skipping any
     # records that already exist.
@@ -116,7 +124,10 @@ for table in tables:
             data = None
 
         if not data or not dirhash:
-            bad.append(dirname)
+            if dirname in [e[1] for e in entries]:
+                undead.append(dirname)
+            else:
+                bad.append(dirname)
             continue
         
         status = "new"
@@ -176,11 +187,25 @@ for table in tables:
         if tablehash != dirhash: ghost = True
 
         if ghost:
-            print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
+            if directory in undead:
+                print('\033[90mundead     '+directory+' missing metadata file ('+tablehash+')')
+            else:
+                print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
+                num_ghost += 1
             if args.mode == 'add':
                 simba.updateRecord(cur,table['name'], None, tablehash, 'null')
-        
 
+    num_add += len(new)
+    num_moved += len(moved)
+    num_bad += len(bad) 
+    num_undead += len(undead)   
+
+print()
+print('\033[32mnew:          ',num_add,'\033[1;0m')
+print('\033[33mmove:         ',num_moved,'\033[1;0m')
+print('\033[31mbad:          ',num_bad,'\033[1;0m')
+print('\033[90mundead:       ',num_undead,'\033[1;0m')
+print('\033[90mghost:        ',num_ghost,'\033[1;0m')
 
 db.commit()
 db.close()

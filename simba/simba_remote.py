@@ -35,7 +35,7 @@ if sys.argv[2] == "add":
     parser.add_argument('mode',nargs=2,help='Remote function')
     parser.add_argument('remote',help='SSH Remote Directory')
     parser.add_argument('--match',nargs='*',default='*')
-    parser.add_argument('--localpath',default='.')
+    parser.add_argument('--localpath',default='./')
     args=parser.parse_args()
     print(args.match)
     if len(args.remote.split('@')) == 1: 
