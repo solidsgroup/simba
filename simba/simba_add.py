@@ -16,7 +16,7 @@ import pathlib
 #from . import simba
 #For local mode
 from simba import util
-from simba import simba
+from simba import database
 
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 config    = util.getConfigFile(simbaPath)
@@ -88,14 +88,14 @@ for table in tables:
             print("Error in ", directory)
             print(e)
         if data:
-            types.update(simba.getTypes(data))
+            types.update(database.getTypes(data))
         
     #
     # Update/create the chosen table so all the values are represented
     #
-    entries = simba.getTableEntries(cur,table['name'])
+    entries = database.getTableEntries(cur,table['name'])
     if (len(entries) > 0 or len(directories) > 0) and args.mode=='add' :
-        simba.updateTable(cur,table['name'],types,"results",False)
+        database.updateTable(cur,table['name'],types,"results",False)
 
     #
     # If there are tables to delete, delete them
@@ -105,7 +105,7 @@ for table in tables:
     #        cur.execute('DROP TABLE ' + tab)
 
 
-    entries = simba.getTableEntries(cur,table['name'])
+    entries = database.getTableEntries(cur,table['name'])
 
     #
     # Scan each metadata file and add an entry to the table, skipping any
@@ -147,15 +147,15 @@ for table in tables:
         if args.mode == "add":
             if status == "new":
                 print('\033[32madded        ',dirname,'\033[1;0m')
-                simba.updateTable(cur,table['name'],types,"results",False) ## TODO remove this
-                simba.updateRecord(cur,table['name'],data,dirhash,dirname,False)
+                database.updateTable(cur,table['name'],types,"results",False) ## TODO remove this
+                database.updateRecord(cur,table['name'],data,dirhash,dirname,False)
             elif status == "moved":
                 print('\033[33mmoved     ',moved[-1][0],'\033[1;0m')
                 print('\033[33m             ⮡',moved[-1][1],'\033[1;0m')
-                simba.updateRecord(cur,table['name'],data,dirhash,dirname,False)
+                database.updateRecord(cur,table['name'],data,dirhash,dirname,False)
             elif args.all:
                 print('\033[32mupdated      ',dirname,'\033[1;0m')
-                simba.updateRecord(cur,table['name'],data,dirhash,dirname,False)
+                database.updateRecord(cur,table['name'],data,dirhash,dirname,False)
     if args.mode == "status":
         if len(new)>0 or len(moved)>0 or len(bad)>0:
             for n in new:
@@ -167,10 +167,10 @@ for table in tables:
                 print('\033[31mbad       ',b,'\033[1;0m')
     
     if (len(entries) > 0 or len(directories) > 0) and args.mode=='add':
-        simba.updateTable(cur,table['name'],types,"results",False)
+        database.updateTable(cur,table['name'],types,"results",False)
 
     
-    entries = simba.getTableEntries(cur,table['name'])
+    entries = database.getTableEntries(cur,table['name'])
     for e in entries:
         directory = e[1]
 
@@ -193,7 +193,7 @@ for table in tables:
                 print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
                 num_ghost += 1
             if args.mode == 'add':
-                simba.updateRecord(cur,table['name'], None, tablehash, 'null')
+                database.updateRecord(cur,table['name'], None, tablehash, 'null')
 
     num_add += len(new)
     num_moved += len(moved)
