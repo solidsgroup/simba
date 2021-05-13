@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
+
 <style>
 .zoom {
   transition: transform .2s; /* Animation */
@@ -18,9 +19,74 @@
 
 </style>
 
+<!-- =============  TOASTS  ===============   -->
+{% if records %}
+<script> $(document).ready(function(){ $('.toast').toast('show'); }); </script>
+<div aria-live="polite" aria-atomic="true" class="position-relative" style="z-index:99;">
+  <div class="toast-container position-absolute top-0 end-0 p-3">
+    <!-- NEW RECORDS toast -->
+    {% if not range(0,records['new']|length) and not range(0,records['moved']|length) and not range(0,records['bad']|length)%}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header success bg-primary text-white">
+        <span class="rounded me-2" alt="...">
+          <strong class="me-auto"><i class="icon-check"></i>  Everything up to date</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+    {% endif %}
+    <!-- NEW RECORDS toast -->
+    {% if range(0,records['new']|length) %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header success bg-success text-white">
+        <span class="rounded me-2" alt="...">
+          <strong class="me-auto"><i class="icon-plus-sign"></i>  New Records Discovered</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+	{% for i in range(0,records['new']|length) %}
+	{{records['new'][i]}}<br/>
+	{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <!-- MOVED RECORDS toast -->
+    {% if range(0,records['moved']|length) %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header success bg-warning text-white">
+        <span class="rounded me-2" alt="...">
+          <strong class="me-auto"><i class="icon-warning-sign"></i>  These records have been moved</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" >
+	{% for i in range(0,records['moved']|length) %}
+	{{records['moved'][i][0]}} <i class="icon-long-arrow-right"></i> {{records['moved'][i][1]}}<br/>
+	{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <!-- BAD RECORDS toast -->
+    {% if range(0,records['bad']|length) %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header success bg-danger text-white">
+        <span class="rounded me-2" alt="...">
+          <strong class="me-auto"><i class="icon-remove-sign"></i>  These are bad records </strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+	{% for i in range(0,records['bad']|length) %}
+	{{records['bad'][i]}} <br/>
+	{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+  
 <div class="zoom"></div>
 
-<div class="container-fluid">
+
   <div class="row justify-content-start">
     <div class="col-md-4">
       {% include 'tables.html' %}
@@ -39,7 +105,7 @@
       </div>
     </div>
   </div>
-</div>
+
 <br/>
 
 {% set status_column = -1 %}
@@ -77,20 +143,19 @@
 					<a href="/table/{{table_name}}/entry/{{data[j]['HASH']}}">{{data[j]['HASH']}} </a> (Directory deleted) 
 				{% endif %}
 				{% if data[j]['DIFF'] and data[j]['DIR'] != "null"%}
-				        <a target="_blank" href="/table/{{table_name}}/entry/{{data[j]['HASH']}}/diff"><span class="label label-default"> DIFF</span></a>
+				        <a target="_blank" href="/table/{{table_name}}/entry/{{data[j]['HASH']}}/diff"><span class="badge bg-warning"> DIFF</span></a>
 				{% endif %}
 				{% if status[j] %}
 						{% if "Complete" in status[j] %} 
-							<span class="label label-success" alt="Simulation completed" style="display:inline-block;min-width:40px;"> <span class="glyphicon glyphicon-ok"/> </span></span>
+							<span class="badge bg-success" alt="Simulation completed" style="display:inline-block;"> <i class="icon-check"></i></span>
 						{% elif "Running" in status[j] %} 
-							<span class="label label-warning" style="display:inline-block;min-width:40px;"> 
+							<span class="badge bg-primary" style="display:inline-block;min-width:40px;"> <i class="icon-gear"></i>
     	    	    		{% if  status[j].split(' ')|length > 1 %}
     	    	    	    	{{status[j].split(' ')[1]}}
     	    	    		{% else %}
-    	    	    	    	<span class="glyphicon glyphicon-cog"/></span>
     	    	    		{% endif %}
     	    	    		</span>&nbsp;
-    	    	    	{% elif "Interrupt" in status[j] or "Abort" in status[j] or "Segfault" in status[j] %} <span class="label label-danger" style="display:inline-block;min-width:40px;"> 
+    	    	    	        {% elif "Interrupt" in status[j] or "Abort" in status[j] or "Segfault" in status[j] %} <span class="badge bg-danger" style="display:inline-block;min-width:40px;"><i class="icon-remove-sign"></i>
     	    	    		{% if  status[j].split(' ')|length > 1 %}
     	    	    	    	{{status[j].split(' ')[1]}}
     	    	    		{% else %}

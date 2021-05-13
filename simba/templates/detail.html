@@ -43,10 +43,10 @@
 </style>
 
 <div class="container-fluid">
-	<h3 class="pull-left">Simulation Information</h3>
+	<h3 class="pull-left">Simulation Information </h3>
 </div>
 <div class="container-fluid">
-	<button onclick="window.location.href = '/metadata/';" class="btn btn-primary pull-left"><span class="glyphicon glyphicon-cog margin-right px-2"></span> Download metadata file</button>
+	<button onclick="window.location.href = '/metadata/';" class="btn btn-primary pull-left"><span class="glyphicon glyphicon-cog margin-right px-2"></span> <i class="icon-camera-retro"></i> Download metadata file</button>
 	{% if thermofile == None %} 
 		<button onclick="window.location.href = '/thermo/';" class="btn btn-disabled pull-left" disabled><span class="glyphicon glyphicon-signal"></span> Download thermo.dat</button> &nbsp;
 	{% else %} 

@@ -18,6 +18,7 @@ import socket
 
 from simba import util
 from simba import simba
+from simba import simba_add
 
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 config    = util.getConfigFile(simbaPath)
@@ -120,8 +121,8 @@ def table(table):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
+    records = None
 
-    print("HEY EVERYBODY")
     if request.method == 'POST':
         print("POSTING")
         if request.form.get('table-description') and not args.safe:
@@ -142,14 +143,20 @@ def table(table):
                     print("DELETING ",dir)
                     os.system('rm -rf ' + dir)
 
+        #elif request.form.get('action') == 'simba-add':
+
         #
         # DELETE MULITPLE RECORDS
         #
         elif request.form.get('action') == 'delete-records' and not args.safe:
+            print("RECORD HASHES")
+            print(request.form.get('delete-records-hashes'))
             hashes = ' '.join([h.replace(' ','').replace('hash_','')
                                for h in request.form.get('delete-records-hashes').replace('  ',' ').split(' ')]).split()
+            print("RECORD DIRS")
+            print(request.form.get('delete-records-dirs'))
             dirs = ' '.join([h.replace(' ','').replace('hash_','')
-                               for h in request.form.get('delete-records-hashes').replace('  ',' ').split(' ')]).split()
+                               for h in request.form.get('delete-records-dirs').replace('  ',' ').split(' ')]).split()
             tags = request.form.get('apply-tags-tags')#.split(' ')
             for h, d in zip(hashes,dirs):
                 print("Deleting record with hash = ", h)
@@ -182,6 +189,14 @@ def table(table):
             for h in hashes:
                 cur.execute('UPDATE "{}" SET Tags= CASE WHEN Tags IS NULL THEN ? ELSE Tags||","||? END WHERE HASH = ?'.format(table),(tags,tags,h))
 
+        elif request.form.get('action') == 'simba-add' and not args.safe:
+            print("======================================")
+            print("    RUNNING SIMBA_ADD                 ")
+            print("======================================")
+
+            records = simba_add.add(simbaPath,config,scripts,"add",specifictable=table,updateall=True)[0]
+            print(records)
+
         #
         # SHOULD NEVER GET TO THIS POINT
         #
@@ -207,10 +222,10 @@ def table(table):
             cur.execute("DELETE FROM " + table + " WHERE HASH = ?;",(request.form.get('entry-hash'),))
 
 
-    cur.execute("PRAGMA table_info("+table_name+")")
+    cur.execute('PRAGMA table_info("'+table_name+'")')
     columns=[a[1] for a in cur.fetchall()]
 
-    cur.execute("SELECT * FROM " + table_name )
+    cur.execute('SELECT * FROM "' + table_name + '"')
     rawdata = cur.fetchall()
 
     data = []
@@ -250,7 +265,8 @@ def table(table):
                             status=status,
                             numfiles=numfiles,
                             columns=columns,
-                            thumbnails=thumbnails)
+                            thumbnails=thumbnails,
+                           records=records)
 imgfiles = []
 def find_images(path):
     print("Path is ",path)
@@ -345,10 +361,10 @@ def table_entry(table,a_entry):
             cur.execute("UPDATE " + table + " SET Tags = ? WHERE HASH = ?;",
                         (request.form.get('tags'), entry));
 
-    cur.execute("PRAGMA table_info("+table+")")
+    cur.execute('PRAGMA table_info("'+table+'")')
     columns=[a[1] for a in cur.fetchall()]
 
-    cur.execute("SELECT * FROM " + table + " WHERE HASH='" + entry + "'")
+    cur.execute('SELECT * FROM "' + table + '" WHERE HASH="' + entry + '"')
     d = cur.fetchall()[0]
 
     data = dict(zip(columns,d))
@@ -381,7 +397,7 @@ def table_entry_stdout(table,entry):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
-    cur.execute("SELECT STDOUT FROM {} WHERE HASH = ?".format(table),(entry,))
+    cur.execute('SELECT STDOUT FROM "{}" WHERE HASH = ?'.format(table),(entry,))
     return cur.fetchall()[0][0]
 
 @app.route('/table/<table>/entry/<entry>/diff.html', methods=['GET','POST'])
@@ -399,7 +415,7 @@ def table_entry_diff_patch(table,entry):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
-    cur.execute("SELECT DIFF_PATCH FROM {} WHERE HASH = ?".format(table),(entry,))
+    cur.execute('SELECT DIFF_PATCH FROM "{}" WHERE HASH = ?'.format(table),(entry,))
     return Response(cur.fetchall()[0][0],content_type='File')
     #return cur.fetchall()[0][0]
 
@@ -409,7 +425,7 @@ def table_entry_stderr(table,entry):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
-    cur.execute("SELECT STDERR FROM {} WHERE HASH = ?".format(table),(entry,))
+    cur.execute('SELECT STDERR FROM "{}" WHERE HASH = ?'.format(table),(entry,))
     return cur.fetchall()[0][0]
 
 @app.route('/regtest/<regtest>/testentry/<hash>/diff_stdout.html', methods=['GET','POST'])
@@ -418,7 +434,7 @@ def table_entry_diff_stdout(regtest,hash):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
-    cur.execute("SELECT diff_stdout FROM {} WHERE HASH = ?".format(regtest),(hash,))
+    cur.execute('SELECT diff_stdout FROM "{}" WHERE HASH = ?'.format(regtest),(hash,))
     return cur.fetchall()[0][0]
 
 @app.route('/regtest/<regtest>/<run>/stdout.html', methods=['GET','POST'])
