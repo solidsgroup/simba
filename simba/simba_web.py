@@ -163,6 +163,8 @@ def table(table):
                 cur.execute('DELETE FROM "{}" WHERE HASH = ?'.format(table),(h,))
                 print("Deleting directory ", d)
                 os.system('rm -rf ' + d)
+            records=dict()
+            records['deleted'] = dirs
 
         #
         # APPLY TAGS
@@ -406,7 +408,7 @@ def table_entry_diff(table,entry):
     db = sqlite3.connect(args.database)
     db.text_factory = str
     cur= db.cursor()
-    cur.execute("SELECT DIFF FROM {} WHERE HASH = ?".format(table),(entry,))
+    cur.execute('SELECT DIFF FROM "{}" WHERE HASH = ?'.format(table),(entry,))
     return cur.fetchall()[0][0]
 
 @app.route('/table/<table>/entry/<entry>/diff.patch')

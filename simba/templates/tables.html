@@ -53,7 +53,7 @@
   </div>
 </div>
 <script>
-    $('#delete-records-modal').on('show.bs.modal', function(e) {
+  $('#delete-records-modal').on('show.bs.modal', function(e) {
 	var hashes = "";
 	var dirs = "";
 	$("#deleterecordsform input:checkbox:checked").each(function() {
@@ -64,7 +64,7 @@
 	$("#delete-records-dirs").attr('value',dirs);
 	$("#delete-records-hashes").attr('value',hashes);
 	$(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-    });
+  });
 </script>
 
 <!--  ===================================   -->
@@ -153,7 +153,7 @@
   {% else %}
   <a href="/table/{{tables[i]}}" class="list-group-item">
 	{{tables[i]}}
-    {% if counts[i] %}<span class="label label-warning">{{counts[i]}}</span> {% endif %}
+    {% if counts[i] %}<span class="badge bg-warning">{{counts[i]}}</span> {% endif %}
   </a>
   {% endif %}
   {% endif %}

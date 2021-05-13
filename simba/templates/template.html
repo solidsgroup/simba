@@ -25,7 +25,7 @@
 <div aria-live="polite" aria-atomic="true" class="position-relative" style="z-index:99;">
   <div class="toast-container position-absolute top-0 end-0 p-3">
     <!-- NEW RECORDS toast -->
-    {% if not range(0,records['new']|length) and not range(0,records['moved']|length) and not range(0,records['bad']|length)%}
+    {% if not range(0,records['new']|length) and not range(0,records['moved']|length) and not range(0,records['bad']|length) and not range(0,records['deleted']|length) %}
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header success bg-primary text-white">
         <span class="rounded me-2" alt="...">
@@ -39,7 +39,7 @@
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header success bg-success text-white">
         <span class="rounded me-2" alt="...">
-          <strong class="me-auto"><i class="icon-plus-sign"></i>  New Records Discovered</strong>
+          <strong class="me-auto"><i class="icon-plus-sign"></i>  New records</strong>
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
       <div class="toast-body">
@@ -54,7 +54,7 @@
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header success bg-warning text-white">
         <span class="rounded me-2" alt="...">
-          <strong class="me-auto"><i class="icon-warning-sign"></i>  These records have been moved</strong>
+          <strong class="me-auto"><i class="icon-warning-sign"></i>  Moved records</strong>
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
       <div class="toast-body" >
@@ -69,12 +69,27 @@
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header success bg-danger text-white">
         <span class="rounded me-2" alt="...">
-          <strong class="me-auto"><i class="icon-remove-sign"></i>  These are bad records </strong>
+          <strong class="me-auto"><i class="icon-remove-sign"></i>  Bad records </strong>
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
       <div class="toast-body">
 	{% for i in range(0,records['bad']|length) %}
 	{{records['bad'][i]}} <br/>
+	{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <!-- DELETED RECORDS toast -->
+    {% if range(0,records['deleted']|length) %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header success bg-danger text-white">
+        <span class="rounded me-2" alt="...">
+          <strong class="me-auto"><i class="icon-trash"></i>  Deleted records and data </strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+	{% for i in range(0,records['deleted']|length) %}
+	{{records['deleted'][i]}} <br/>
 	{% endfor %}
       </div>
     </div>
@@ -143,7 +158,7 @@
 					<a href="/table/{{table_name}}/entry/{{data[j]['HASH']}}">{{data[j]['HASH']}} </a> (Directory deleted) 
 				{% endif %}
 				{% if data[j]['DIFF'] and data[j]['DIR'] != "null"%}
-				        <a target="_blank" href="/table/{{table_name}}/entry/{{data[j]['HASH']}}/diff"><span class="badge bg-warning"> DIFF</span></a>
+				        <a target="_blank" href="/table/{{table_name}}/entry/{{data[j]['HASH']}}/diff.html"><span class="badge bg-warning"> DIFF</span></a>
 				{% endif %}
 				{% if status[j] %}
 						{% if "Complete" in status[j] %} 
@@ -165,7 +180,7 @@
 					{% endif %}
 					{% endif %}
 					{% if numfiles|length > 0 %}{% if numfiles[j] > 0 %}
-						<span class="label label-primary"> {{numfiles[j]}} </span>
+						<span class="badge bg-primary"> {{numfiles[j]}} </span>
 					{% endif %}
 					</td>
 				{% endif %}
@@ -179,7 +194,7 @@
 				<td>
 					{% set taglist = data[j]['Tags'].split(',') %}
 					{% for tag in taglist %}
-						<span class="label label-primary">{{tag}} </span>&nbsp;
+						<span class="badge bg-primary">{{tag}} </span>&nbsp;
 					{% endfor %}
 				</td>
 			{% elif "Simulation_end_time" in columns[i] or "Simulation_start_time" in columns[i] %}

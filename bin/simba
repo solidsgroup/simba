@@ -2,6 +2,14 @@
 import sys
 print("Simba 2020.11.18.01")
 
+
+import pathlib
+import argparse
+from simba import util
+simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+config    = util.getConfigFile(simbaPath)
+scripts   = util.getScripts(config)
+
 if len(sys.argv) < 2:
     print(
 """usage: simba <command> [<args>]
@@ -12,12 +20,21 @@ Basic commands:
     web     Start web server
     init    Initialize simba in current directory
 """)
-
 elif sys.argv[1] in ["add","status"]:
     from simba import simba_add
+    parser = argparse.ArgumentParser(description='Sift through outputs')
+    parser.add_argument('mode')
+    parser.add_argument('directories', nargs='*', help='List of directories containing ALAMO output')
+    parser.add_argument('-d','--database', default=str(simbaPath/'results.db'), help='Name of database')
+    parser.add_argument('-r','--remove', nargs='*', help='Tables to remove')
+    parser.add_argument('-t','--table', default=None, help='Table name in database')
+    parser.add_argument('-a','--all', action='store_true', default=False, help='Force update of ALL records')
+    args=parser.parse_args()
+    simba_add.add(simbaPath,config,scripts,sys.argv[1],args.directories,args.database,args.remove,args.table,args.all)
 elif sys.argv[1] in ["view"]:
     from simba import simba_view
 elif sys.argv[1] in ["web"]:
+    print("webbing")
     from simba import simba_web
 elif sys.argv[1] in ["init"]:
     from simba import simba_init

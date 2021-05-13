@@ -17,19 +17,7 @@ import pathlib
 #For local mode
 from simba import util
 from simba import database
-
 simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-config    = util.getConfigFile(simbaPath)
-scripts   = util.getScripts(config)
-
-parser = argparse.ArgumentParser(description='Sift through outputs')
-parser.add_argument('mode')
-parser.add_argument('directories', nargs='*', help='List of directories containing ALAMO output')
-parser.add_argument('-d','--database', default=str(simbaPath/'results.db'), help='Name of database')
-parser.add_argument('-r','--remove', nargs='*', help='Tables to remove')
-parser.add_argument('-t','--table', default=None, help='Table name in database')
-parser.add_argument('-a','--all', action='store_true', default=False, help='Force update of ALL records')
-args=parser.parse_args()
 
 def add(simbaPath, config, scripts, mode='add', directories=None, databasename=str(simbaPath/'results.db'), remove=None, specifictable=None, updateall=False):
     retlist = []
@@ -233,6 +221,5 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=s
     return retlist
     
 
-add(simbaPath,config,scripts,args.mode,args.directories,args.database,args.remove,args.table,args.all)
 
         
