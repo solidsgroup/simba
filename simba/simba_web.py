@@ -357,10 +357,10 @@ def table_entry(table,a_entry):
 
     if request.method == 'POST':
         if request.form.get('description'):
-            cur.execute("UPDATE " + table + " SET Description = ? WHERE HASH = ?;",
+            cur.execute('UPDATE "' + table + '" SET Description = ? WHERE HASH = ?;',
                         (request.form.get('description'), entry));
         if request.form.get('tags'):
-            cur.execute("UPDATE " + table + " SET Tags = ? WHERE HASH = ?;",
+            cur.execute('UPDATE "' + table + '" SET Tags = ? WHERE HASH = ?;',
                         (request.form.get('tags'), entry));
 
     cur.execute('PRAGMA table_info("'+table+'")')

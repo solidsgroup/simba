@@ -9,7 +9,7 @@ class table:
     cur = None
     name = None
     def getColumnNames(self):
-        self.cur.execute("PRAGMA table_info(" + self.name + ")")
+        self.cur.execute('PRAGMA table_info("' + self.name + '")')
         data = [d[1] for d in self.cur.fetchall()]
         return data
 
@@ -19,7 +19,7 @@ class table:
             asdict=True,
             ):
         if not columns: columns = self.getColumnNames()
-        query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns]) + ' FROM ' + self.name + (' WHERE ' + match if match else '')
+        query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns]) + ' FROM "' + self.name + '"' + (' WHERE ' + match if match else '')
         self.cur.execute(query)
         data = [list(d) for d in self.cur.fetchall()]
         if asdict:
