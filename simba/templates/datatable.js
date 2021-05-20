@@ -1,6 +1,6 @@
 $(document).ready(function() {
     var table = $('#bigtable').DataTable( {
-	dom: 'Bfrtip',
+	dom: 'Bfrtlip',
 //        columnDefs: [
 //            {
 //                targets: 1,

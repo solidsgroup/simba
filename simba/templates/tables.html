@@ -109,6 +109,65 @@
     });
 </script>
 
+<!--  ===================================   -->
+<!--  COMPARE RECORDS DIALOG                -->
+<!--  ===================================   -->
+
+<script> var txt; </script>
+<div class="modal fade" id="compare-records-modal" tabindex="-1" role="dialog" aria-labelledby="myModalCompare" aria-hidden="true" style="width:90%;">
+	<div class="modal-dialog modal-lg" style="max-width: fit-content;">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <b>Record differences:</b>
+		</div>
+		<div class="modal-body">
+			<div id="compare-records-body">
+				<script>document.write(names);</script>
+			</div>
+	  	</div>
+		<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		</div>
+	</div>
+  </div>
+  <script>
+	  $('#compare-records-modal').on('show.bs.modal', function(e) {
+
+		var table = $('#bigtable').DataTable();
+		var hashes = "";
+		var count = table.rows('.selected').data().length;
+
+		
+		txt = '<table class="table">'
+		
+		var names = table.columns().header().toArray().map(x => x.innerText);
+		var selectedrows = table.rows('.selected').data();
+
+		for (j = 0; j < selectedrows[0].length; j++) {
+			console.log(selectedrows.length);
+			var same = true;
+			for ( i = 0; i < selectedrows.length ; i++) {
+				if (selectedrows[i][j] != selectedrows[0][j]){
+					same = false;
+				}
+			}
+			if (!same){
+				txt += '<tr><td>' + names[j] + '</td>'
+				//console.log(names[j]);
+				for ( i = 0; i < selectedrows.length ; i++) {
+					txt += '<td>' + selectedrows[i][j] + '</td>'
+					//console.log();
+				}
+				txt += '</tr>'
+			}
+		}
+		txt += "</table>"
+
+		$("#compare-records-body").html(txt);
+
+	  });
+  </script>
+  
+
 
 <!--  ===================================   -->
 <!--  RENAME TABLE DIALOG                   -->
