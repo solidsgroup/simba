@@ -15,9 +15,16 @@ class table:
 
     def get(self,
             columns=None,alias=None,
-            match=None,
+#            match=None,
             asdict=True,
+            **kwargs
             ):
+        
+        matches = []
+        for key, value in kwargs.items():
+            matches.append('"{}" LIKE "{}"'.format(key,value))
+        match = ' AND '.join(matches)
+
         if not columns: columns = self.getColumnNames()
         query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns]) + ' FROM "' + self.name + '"' + (' WHERE ' + match if match else '')
         self.cur.execute(query)
@@ -31,7 +38,7 @@ class table:
                 ret.append(item)
             return ret
         else:
-            return data
+            return data    
 
 
 class db:
