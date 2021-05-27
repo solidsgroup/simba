@@ -6,9 +6,6 @@ print("Simba 2020.11.18.01")
 import pathlib
 import argparse
 from simba import util
-simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-config    = util.getConfigFile(simbaPath)
-scripts   = util.getScripts(config)
 
 if len(sys.argv) < 2:
     print(
@@ -21,6 +18,10 @@ Basic commands:
     init    Initialize simba in current directory
 """)
 elif sys.argv[1] in ["add","status"]:
+    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+    config    = util.getConfigFile(simbaPath)
+    scripts   = util.getScripts(config)
+
     from simba import simba_add
     parser = argparse.ArgumentParser(description='Sift through outputs')
     parser.add_argument('mode')
@@ -32,16 +33,27 @@ elif sys.argv[1] in ["add","status"]:
     args=parser.parse_args()
     simba_add.add(simbaPath,config,scripts,sys.argv[1],args.directories,args.database,args.remove,args.table,args.all)
 elif sys.argv[1] in ["view"]:
+    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+    config    = util.getConfigFile(simbaPath)
+    scripts   = util.getScripts(config)
     from simba import simba_view
 elif sys.argv[1] in ["web"]:
-    print("webbing")
+    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+    config    = util.getConfigFile(simbaPath)
+    scripts   = util.getScripts(config)
     from simba import simba_web
 elif sys.argv[1] in ["init"]:
     from simba import simba_init
 elif sys.argv[1] in ["rt"]:
+    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+    config    = util.getConfigFile(simbaPath)
+    scripts   = util.getScripts(config)
     print("Starting regression test")
     from simba import simba_rt
 elif sys.argv[1] in ["remote"]:
+    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+    config    = util.getConfigFile(simbaPath)
+    scripts   = util.getScripts(config)
     from simba import simba_remote
 else:
     print("Command \"", sys.argv[1], "\" is not a valid command")
