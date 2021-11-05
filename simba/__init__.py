@@ -3,8 +3,12 @@ import sqlite3
 
 import simba.util
 
+from simba import simba_add
 
 class table:
+    simbaPath = None
+    config = None
+    scripts = None
     db = None
     cur = None
     name = None
@@ -22,7 +26,7 @@ class table:
         
         matches = []
         for key, value in kwargs.items():
-            matches.append('"{}" LIKE "{}"'.format(key,value))
+            matches.append('"{}" LIKE "{}"'.format(key.replace("DOT","."),value))
         match = ' AND '.join(matches)
 
         if not columns: columns = self.getColumnNames()
@@ -40,8 +44,13 @@ class table:
         else:
             return data    
 
+    def add(self):
+        simba_add.add(self.simbaPath,self.config,self.scripts,"add",specifictable=self.name,updateall=True)
 
 class db:
+    simbaPath = None
+    config = None
+    scripts = None
     db  = None
     cur = None
     def getTableNames(self):
@@ -53,7 +62,10 @@ class db:
         tablenames = self.getTableNames()
         if not tableName in tablenames:
             raise Exception("Table ", tablenames," not in database")
-        tableret = table()
+        tableret = table()        
+        tableret.simbaPath = self.simbaPath
+        tableret.config = self.config
+        tableret.scripts = self.scripts
         tableret.db = self.db
         tableret.cur = self.cur
         tableret.name = tableName
@@ -63,9 +75,13 @@ class db:
 
 def open(filename = None):
     dbret = db()
-    path = util.getSimbaDir(filename if filename else pathlib.Path.cwd())
-    print(path)
-    dbret.db = sqlite3.connect(path/"results.db")
+    simbaPath = util.getSimbaDir(filename if filename else pathlib.Path.cwd())
+    config    = util.getConfigFile(simbaPath)
+    scripts   = util.getScripts(config)
+    dbret.simbaPath = simbaPath
+    dbret.config = config
+    dbret.scripts = scripts
+    dbret.db = sqlite3.connect(simbaPath/"results.db")
     dbret.db.text_factory = str
     dbret.cur = dbret.db.cursor()
     return dbret

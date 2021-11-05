@@ -70,7 +70,6 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=s
     
     for table in tables:
         if specifictable:
-            print("specific table = ",specifictable)
             if not table['name'] == specifictable:
                 continue
         

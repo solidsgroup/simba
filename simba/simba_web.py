@@ -140,8 +140,8 @@ def table(table):
                     dir = str(f[1])
                     print("DELETING ",hash)
                     cur.execute("DELETE FROM " + table + " WHERE HASH = ?;",(hash,))
-                    print("DELETING ",dir)
-                    os.system('rm -rf ' + dir)
+                    print("DELETING ",str(simbaPath)+"/"+dir)
+                    os.system('rm -rf ' + str(simbaPath)+"/"+dir)
 
         #elif request.form.get('action') == 'simba-add':
 
@@ -271,11 +271,11 @@ def table(table):
                            records=records)
 imgfiles = []
 def find_images(path):
-    print("Path is ",path)
+    print("Path is ",str(simbaPath) + "/../" + path)
     global imgfiles
     img_fmts = ['.jpg', '.jpeg', '.png', '.gif','.svg']
     imgfiles = []
-    for fmt in img_fmts: imgfiles += glob.glob(path+'/*'+fmt)
+    for fmt in img_fmts: imgfiles += glob.glob(str(simbaPath) + "/../" + path+'/*'+fmt)
     imgfiles.sort()
 
 def find_thumbnails(paths):
@@ -286,6 +286,7 @@ def find_thumbnails(paths):
         for fmt in img_fmts: tmp_files += glob.glob(path+'/*'+fmt)
         if len(tmp_files) > 0: thumbnails.append(sorted(tmp_files)[0].replace("/",r"DIRDIR"))
         else: thumbnails.append("")
+    print(thumbnails)
     return thumbnails
 
 def find_tarballs(path):
