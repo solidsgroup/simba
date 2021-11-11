@@ -59,7 +59,7 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=N
             
     
     if not databasename: databasename = simbaPath/"results.db"
-    db = sqlite3.connect(databasename)
+    db = sqlite3.connect(str(databasename))
     db.text_factory = str
     cur= db.cursor()
 

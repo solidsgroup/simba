@@ -61,7 +61,7 @@ if 'main' in config:
 
 if fcompare_exe and not os.path.isfile(fcompare_exe):
     raise Exception("fcompere_exe {} does not exist".format(fcompare_exe))
-db = sqlite3.connect(db_path + '/regtest.db')
+db = sqlite3.connect(str(db_path + '/regtest.db'))
 db.text_factory = str
 cur= db.cursor()
 types = dict()
