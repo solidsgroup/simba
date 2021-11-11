@@ -1,0 +1,12 @@
+name: Linux Build and Test
+
+on: [push, pull_request]
+
+jobs:
+  Installation:
+    name: Simba Initialize
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: installing preliminaries
+      run: bash .github/workflows/simba-install.sh
