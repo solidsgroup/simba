@@ -28,6 +28,9 @@ import importlib
 def bold(str):  return "\033[1m{}\033[0m".format(str)
 def red(str):   return "\033[31m{}\033[0m".format(str)
 def green(str): return "\033[32m{}\033[0m".format(str)
+def yellow(str): return "\033[33m{}\033[0m".format(str)
+def lightgray(str): return "\033[37m{}\033[0m".format(str)
+def darkgray(str): return "\033[90m{}\033[0m".format(str)
 
 #
 # Look recursively for a .simba directory in this or a parent path

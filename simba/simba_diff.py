@@ -21,12 +21,13 @@ from simba import database
 #simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 
 
+print("\n\n### SIMBA DIFF ###")
 
 
-db_local = sqlite3.connect(sys.argv[3])
+db_local = sqlite3.connect(sys.argv[2])
 cur_local = db_local.cursor()
 
-db_remote = sqlite3.connect(sys.argv[2])
+db_remote = sqlite3.connect(sys.argv[3])
 cur_remote = db_remote.cursor()
 
 # Start off looking at all of the tables
@@ -43,8 +44,8 @@ tables_remote = set(tables_remote)
 
 
 tables_both = tables_local & tables_remote
-tables_added = tables_remote - tables_local
-tables_deleted = tables_local - tables_remote
+tables_added = tables_local - tables_remote
+tables_deleted = tables_remote - tables_local
 
 if len(tables_added):
     print(util.green("\nAdded tables"))
@@ -55,28 +56,28 @@ if len(tables_deleted):
 
 for table in sorted(tables_both):
     quiet = True
-    def printTableName(): 
-        if quiet: 
-            print("TABLE: " + table); quiet = False
+    def printTableName(quiet): 
+        if quiet: print(util.yellow("\nModified table: " + table)); 
+        return False
     cur_local.execute('PRAGMA table_info("' + table + '")')
     columns_local = set([d[1] for d in cur_local.fetchall()])
     cur_remote.execute('PRAGMA table_info("' + table + '")')
     columns_remote = set([d[1] for d in cur_remote.fetchall()])
 
-    shared_columns = columns_local & columns_remote
+    columns_both = columns_local & columns_remote
     columns_added = columns_local - columns_remote
     columns_deleted = columns_remote - columns_local
 
     ## Do this if columns have been added. To be implemented.
     if columns_added:   
-        printTableName()
-        print("Columns added!", columns_added)
+        quiet = printTableName(quiet)
+        print(util.green("\tColumns added: " + " ".join(columns_added)))
     if columns_deleted: 
-        printTableName()
-        print("Columns deleted!", columns_deleted)
+        quiet = printTableName(quiet)
+        #print(util.red("\tColumns deleted: " + " ".join(columns_deleted)))
     
     ## Do this if columns are exactly the same
-    query = 'SELECT ' + ','.join(['"'+c+'"' for c in shared_columns]) + ' FROM "' + table + '"'
+    query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns_both]) + ' FROM "' + table + '"'
     ## Get local records
     cur_local.execute(query)
     data_local = [list(d) for d in cur_local.fetchall()]
@@ -101,26 +102,32 @@ for table in sorted(tables_both):
     hashes_added = hashes_local - hashes_remote
     hashes_deleted = hashes_remote - hashes_local
         
-    for hash in hashes_both:
-        record_local = next(item for item in records_local if item['HASH'] == hash)
-        record_remote = next(item for item in records_remote if item['HASH'] == hash)
-        for key in record_local.keys():
-            if (record_local[key] != record_remote[key]):
-                printTableName()
-                print("\t",record_local['HASH'],key,record_local[key],record_remote[key])
 
     if hashes_added: 
-        printTableName
-    for hashes in hashes_added:
-        record_local = next(item for item in records_local if item['HASH'] == hash)
-        printTableName()
-        print(util.green("\tAdded: "+record_local['HASH']+record_local['DIR']))
+        quiet = printTableName(quiet)
+    for myhash in hashes_added:
+        record_local = next(item for item in records_local if item['HASH'] == myhash)
+        quiet = printTableName(quiet)
+        print(util.green("\tAdded record: "+str(record_local['HASH'])+" "+str(record_local['DIR'])))
     if hashes_deleted: 
-        printTableName()
-    for hashes in hashes_deleted:
-        record_remote = next(item for item in records_remote if item['HASH'] == hash)
-        printTableName()
-        print(util.red("\tDeleted: ",record_remote['HASH'],record_remote['DIR']))
+        quiet = printTableName(quiet)
+    for myhash in hashes_deleted:
+        record_remote = next(item for item in records_remote if item['HASH'] == myhash)
+        quiet = printTableName(quiet)
+        print(util.red("\tDeleted record: "+str(record_remote['HASH'])+" "+str(record_remote['DIR'])))
+
+    for myhash in hashes_both:
+        recordquiet = True
+        def printRecordName(recordquiet):
+            if recordquiet: print(util.yellow("\tModified record: "+str(myhash) + " " + str(record_local['DIR'])))
+            return False
+        record_local = next(item for item in records_local if item['HASH'] == myhash)
+        record_remote = next(item for item in records_remote if item['HASH'] == myhash)
+        for key in record_local.keys():
+            if (record_local[key] != record_remote[key]):
+                quiet = printTableName(quiet)
+                recordquiet = printRecordName(recordquiet)
+                print("\t\t",key,": ", util.darkgray(record_remote[key])," --> ",util.green(record_local[key]))
 
     
 
