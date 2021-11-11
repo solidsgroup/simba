@@ -4,6 +4,7 @@ import sqlite3
 import simba.util
 
 from simba import simba_add
+from simba import database
 
 class table:
     simbaPath = None
@@ -44,9 +45,15 @@ class table:
         else:
             return data    
 
-    def add(self):
-        simba_add.add(self.simbaPath,self.config,self.scripts,"add",specifictable=self.name,updateall=True)
+    def add(self,verbose=False):
+        simba_add.add(self.simbaPath,self.config,self.scripts,"add",specifictable=self.name,updateall=True,verbose=verbose)
 
+    def update(self,record,verbose=False):
+        types = database.getTypes(record)
+        database.updateTable(self.cur,self.name,types)
+        database.updateRecord(self.cur,self.name,record,record['HASH'],record['DIR'],verbose=verbose)
+        self.db.commit()
+        
 class db:
     simbaPath = None
     config = None

@@ -17,9 +17,9 @@ import pathlib
 #For local mode
 from simba import util
 from simba import database
-simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+#simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 
-def add(simbaPath, config, scripts, mode='add', directories=None, databasename=str(simbaPath/'results.db'), remove=None, specifictable=None, updateall=False):
+def add(simbaPath, config, scripts, mode='add', directories=None, databasename=None, remove=None, specifictable=None, updateall=False,verbose=True):
     retlist = []
 
     from glob import glob
@@ -58,7 +58,8 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=s
         print("No data.ini file found")
             
     
-    db = sqlite3.connect(databasename if databasename.endswith('.db') else databasename+'.db')
+    if not databasename: databasename = simbaPath/"results.db"
+    db = sqlite3.connect(databasename)
     db.text_factory = str
     cur= db.cursor()
 
@@ -147,25 +148,25 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=s
                 raise Exception("parseOutputDir.parse MUST include a HASH in its output")
             if mode == "add":
                 if status == "new":
-                    print('\033[32madded        ',dirname,'\033[1;0m')
+                    if(verbose): print('\033[32madded        ',dirname,'\033[1;0m')
                     database.updateTable(cur,table['name'],types,"results",False) ## TODO remove this
                     database.updateRecord(cur,table['name'],data,dirhash,dirname,False)
                 elif status == "moved":
-                    print('\033[33mmoved     ',moved[-1][0],'\033[1;0m')
-                    print('\033[33m             ⮡',moved[-1][1],'\033[1;0m')
+                    if(verbose): print('\033[33mmoved     ',moved[-1][0],'\033[1;0m')
+                    if(verbose):print('\033[33m             ⮡',moved[-1][1],'\033[1;0m')
                     database.updateRecord(cur,table['name'],data,dirhash,dirname,False)
                 elif updateall:
-                    print('\033[32mupdated      ',dirname,'\033[1;0m')
+                    if(verbose):print('\033[32mupdated      ',dirname,'\033[1;0m')
                     database.updateRecord(cur,table['name'],data,dirhash,dirname,False)
         if mode == "status":
             if len(new)>0 or len(moved)>0 or len(bad)>0:
                 for n in new:
-                    print('\033[32mnew       ',n,'\033[1;0m')
+                    if(verbose): print('\033[32mnew       ',n,'\033[1;0m')
                 for m in moved:
-                    print('\033[33mmoved     ',m[0],'\033[1;0m')
-                    print('\033[33m             ⮡',m[1],'\033[1;0m')
+                    if(verbose): print('\033[33mmoved     ',m[0],'\033[1;0m')
+                    if(verbose): print('\033[33m             ⮡',m[1],'\033[1;0m')
                 for b in bad:
-                    print('\033[31mbad       ',b,'\033[1;0m')
+                    if(verbose): print('\033[31mbad       ',b,'\033[1;0m')
         
         if (len(entries) > 0 or len(directories) > 0) and mode=='add':
             database.updateTable(cur,table['name'],types,"results",False)
@@ -189,9 +190,9 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=s
     
             if ghost:
                 if directory in undead:
-                    print('\033[90mundead     '+directory+' missing metadata file ('+tablehash+')')
+                    if(verbose): print('\033[90mundead     '+directory+' missing metadata file ('+tablehash+')')
                 else:
-                    print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
+                    if(verbose): print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
                     num_ghost += 1
                 if mode == 'add':
                     database.updateRecord(cur,table['name'], None, tablehash, 'null')
@@ -207,12 +208,12 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=s
         ret['undead'] = undead
         retlist.append(ret)
 
-    print()
-    print('\033[32mnew:          ',num_add,'\033[1;0m')
-    print('\033[33mmove:         ',num_moved,'\033[1;0m')
-    print('\033[31mbad:          ',num_bad,'\033[1;0m')
-    print('\033[90mundead:       ',num_undead,'\033[1;0m')
-    print('\033[90mghost:        ',num_ghost,'\033[1;0m')
+    if(verbose): print()
+    if(verbose): print('\033[32mnew:          ',num_add,'\033[1;0m')
+    if(verbose): print('\033[33mmove:         ',num_moved,'\033[1;0m')
+    if(verbose): print('\033[31mbad:          ',num_bad,'\033[1;0m')
+    if(verbose): print('\033[90mundead:       ',num_undead,'\033[1;0m')
+    if(verbose): print('\033[90mghost:        ',num_ghost,'\033[1;0m')
     
     db.commit()
     db.close()

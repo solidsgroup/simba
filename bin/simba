@@ -55,5 +55,7 @@ elif sys.argv[1] in ["remote"]:
     config    = util.getConfigFile(simbaPath)
     scripts   = util.getScripts(config)
     from simba import simba_remote
+elif sys.argv[1] in ["diff"]:
+    from simba import simba_diff
 else:
     print("Command \"", sys.argv[1], "\" is not a valid command")

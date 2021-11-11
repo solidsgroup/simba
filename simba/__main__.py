@@ -19,6 +19,8 @@ def main():
         os.system(sys.executable + " " + exepath + "/simba_add.py " + " ".join(sys.argv[1:]))
     if sys.argv[1] in ["web"]:
         os.system(sys.executable + " " + exepath + "/simba_web.py " + " ".join(sys.argv[1:]))
+    if sys.argv[1] in ["diff"]:
+        os.system(sys.executable + " " + exepath + "/simba_diff.py " + " ".join(sys.argv[1:]))
 
 
 if __name__ == '__main__':

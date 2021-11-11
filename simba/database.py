@@ -25,12 +25,16 @@ def getTypes(data):
             try:
                 int(val)
                 types[key] = 'INTEGER'
+            except TypeError:
+                False
             except ValueError:
                 False
         if key not in types:
             try:
                 float(val)
                 types[key] = 'FLOAT'
+            except TypeError:
+                False
             except ValueError:
                 False
         if key not in types:
