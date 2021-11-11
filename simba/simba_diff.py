@@ -77,7 +77,7 @@ for table in sorted(tables_both):
         #print(util.red("\tColumns deleted: " + " ".join(columns_deleted)))
     
     ## Do this if columns are exactly the same
-    query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns_both]) + ' FROM "' + table + '"'
+    query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns_local]) + ' FROM "' + table + '"'
     ## Get local records
     cur_local.execute(query)
     data_local = [list(d) for d in cur_local.fetchall()]
@@ -87,6 +87,7 @@ for table in sorted(tables_both):
         for c,d in zip(columns_local,data): item[c] = d
         records_local.append(item)
     ## Get remote records
+    query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns_remote]) + ' FROM "' + table + '"'
     cur_remote.execute(query)
     data_remote = [list(d) for d in cur_remote.fetchall()]
     records_remote = []
@@ -105,13 +106,13 @@ for table in sorted(tables_both):
 
     if hashes_added: 
         quiet = printTableName(quiet)
-    for myhash in hashes_added:
+    for myhash in sorted(list(hashes_added)):
         record_local = next(item for item in records_local if item['HASH'] == myhash)
         quiet = printTableName(quiet)
         print(util.green("\tAdded record: "+str(record_local['HASH'])+" "+str(record_local['DIR'])))
     if hashes_deleted: 
         quiet = printTableName(quiet)
-    for myhash in hashes_deleted:
+    for myhash in sorted(list(hashes_deleted)):
         record_remote = next(item for item in records_remote if item['HASH'] == myhash)
         quiet = printTableName(quiet)
         print(util.red("\tDeleted record: "+str(record_remote['HASH'])+" "+str(record_remote['DIR'])))
@@ -125,6 +126,7 @@ for table in sorted(tables_both):
         record_remote = next(item for item in records_remote if item['HASH'] == myhash)
         for key in record_local.keys():
             if (record_local[key] != record_remote[key]):
+                print(key,record_local[key])
                 quiet = printTableName(quiet)
                 recordquiet = printRecordName(recordquiet)
                 print("\t\t",key,": ", util.darkgray(record_remote[key])," --> ",util.green(record_local[key]))
@@ -133,7 +135,8 @@ for table in sorted(tables_both):
 
 
 
-
+db_local.close()
+db_remote.close()
 
 
 
