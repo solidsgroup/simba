@@ -57,5 +57,7 @@ elif sys.argv[1] in ["remote"]:
     from simba import simba_remote
 elif sys.argv[1] in ["diff"]:
     from simba import simba_diff
+elif sys.argv[1] in ["merge"]:
+    from simba import simba_merge
 else:
     print("Command \"", sys.argv[1], "\" is not a valid command")
