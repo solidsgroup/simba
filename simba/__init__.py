@@ -88,7 +88,7 @@ def open(filename = None):
     dbret.simbaPath = simbaPath
     dbret.config = config
     dbret.scripts = scripts
-    dbret.db = sqlite3.connect(simbaPath/"results.db")
+    dbret.db = sqlite3.connect(str(simbaPath/"results.db"))
     dbret.db.text_factory = str
     dbret.cur = dbret.db.cursor()
     return dbret
