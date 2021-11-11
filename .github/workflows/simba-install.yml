@@ -4,9 +4,11 @@ on: [push, pull_request]
 
 jobs:
   Installation:
-    name: Simba Initialize
+    name: Installation
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: installing preliminaries
       run: pip3 install -e .
+    - name: simba init
+      run: simba init
