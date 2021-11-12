@@ -44,7 +44,7 @@ def getTypes(data):
 #
 # Create a table if it does not exist, or update the table if it does.
 #
-def updateTable(cur,tablename,types,mode="results",verbose=True):
+def updateTable(cur,tablename,types=None,mode="results",verbose=True):
     """
     Create a table if it does not exist, or update the table if it does.
     """
@@ -63,24 +63,35 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
             cur.execute('ALTER TABLE __tables__ ADD NumEntries INT;')
     if tablename not in tables:
         if mode == "results":
-            cur.execute('CREATE TABLE "{}" ('.format(tablename) +
-                        'HASH VARCHAR(255) UNIQUE, ' +
-                        'DIR VARCHAR(255), ' +
-                        'Description VARCHAR(8000),' +
-                        'Tags VARCHAR(1000)' +
-                        (',' if len(types)>0 else '') +
-                        ','.join(['"'+key+'" '+types[key] for key in sorted(types)]) +
-                        ');')
+            if types:
+                if 'HASH' in types.keys(): types.pop('HASH')
+                if 'DIR' in types.keys(): types.pop('DIR')
+                if 'Description' in types.keys(): types.pop('Description')
+                if 'Tags' in types.keys(): types.pop('Tags')
+                cur.execute('CREATE TABLE "{}" ('.format(tablename) +
+                            'HASH VARCHAR(255) UNIQUE, ' +
+                            'DIR VARCHAR(255), ' +
+                            'Description VARCHAR(8000),' +
+                            'Tags VARCHAR(1000)' +
+                            (',' if len(types) else '') +
+                            ','.join(['"'+key+'" '+types[key] for key in sorted(types)]) +
+                            ');')
+            else:
+                cur.execute('CREATE TABLE "{}" ('.format(tablename) +
+                            'HASH VARCHAR(255) UNIQUE, ' +
+                            'DIR VARCHAR(255), ' +
+                            'Description VARCHAR(8000),' +
+                            'Tags VARCHAR(1000));')
         elif mode == "regtest":
             cur.execute('CREATE TABLE regtest ('
                         'HASH VARCHAR(255) UNIQUE ' +
-                        (',' if len(types)>0 else '') +
+                        (',' if len(types) else '') +
                         ','.join([key+' '+types[key] for key in sorted(types)]) +
                         ');')
         elif mode == "regtest_runs":
             cur.execute('CREATE TABLE regtest_runs ('
                         'RUN VARCHAR(255) UNIQUE ' +
-                        (',' if len(types)>0 else '') +
+                        (',' if len(types) else '') +
                         ','.join([key+' '+types[key] for key in sorted(types)]) +
                         ');')
         if (verbose): print('\033[1;32mADDED TABLE\033[1;0m: ' + tablename)
@@ -96,15 +107,15 @@ def updateTable(cur,tablename,types,mode="results",verbose=True):
     if verbose: print(sqlstring)
     cur.execute(sqlstring)
     columns=[a[1] for a in cur.fetchall()]
-    for key in types:
-        if key not in columns:
-            cur.execute('ALTER TABLE "{}" ADD "{}" {}'.format(tablename,key,types[key]))
-            if (verbose): print('\033[1;34mADDED COLUMN\033[1;0m: ' + key + ' to ' + tablename)
+    if types:
+        for key in types:
+            if key not in columns:
+                cur.execute('ALTER TABLE "{}" ADD "{}" {}'.format(tablename,key,types[key]))
+                if (verbose): print('\033[1;34mADDED COLUMN\033[1;0m: ' + key + ' to ' + tablename)
 
     # Finally, update __tables__ with # of records
     cur.execute('SELECT * FROM "{}"'.format(tablename));
     cur.execute('UPDATE __tables__ SET NumEntries = {} WHERE NAME = "{}"'.format(len(cur.fetchall()),tablename))
-
 
 def updateRecord(cur,tablename,data,hash,directory,verbose=True):
     new_dir = directory

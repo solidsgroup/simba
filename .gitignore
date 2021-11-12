@@ -130,4 +130,5 @@ dmypy.json
 
 .simba
 
-workspace.code-workspace
+*.code-workspace
+

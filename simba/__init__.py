@@ -50,7 +50,7 @@ class table:
 
     def update(self,record,verbose=False):
         types = database.getTypes(record)
-        database.updateTable(self.cur,self.name,types)
+        database.updateTable(self.cur,self.name,types,verbose=verbose)
         database.updateRecord(self.cur,self.name,record,record['HASH'],record['DIR'],verbose=verbose)
         self.db.commit()
         
@@ -85,9 +85,23 @@ class db:
         tableret.db = self.db
         tableret.cur = self.cur
         tableret.name = tableName
-        database.updateTable(tableret.cur, tableName, None)
+        database.updateTable(tableret.cur, tableName, None,verbose=False)
+        tableret.db.commit()
         return tableret
-
+    def copyTable(self,tablenew):
+        tableret = table()
+        tableret.simbaPath = self.simbaPath
+        tableret.config = self.config
+        tableret.scripts = self.scripts
+        tableret.db = self.db
+        tableret.cur = self.cur
+        tableret.name = tablenew.name
+        recs = tablenew.get()
+        if len(recs): types = database.getTypes(recs[0])
+        else: types = None
+        database.updateTable(tableret.cur,tableret.name,types,vebose=False)
+        tableret.db.commit()
+        return tableret
 
 def open(filename = None, database = None):
     dbret = db()

@@ -24,24 +24,116 @@ from simba import database
 print("\n\n### SIMBA MERGE ###")
 
 
-db_local  = simba.open(filename=sys.argv[3],database=sys.argv[2])
-db_merged = simba.open(filename=sys.argv[3],database=sys.argv[3])
-db_remote = simba.open(filename=sys.argv[3],database=sys.argv[4])
+db_local  = simba.open(filename=sys.argv[5],database=sys.argv[2])
+db_base = simba.open(filename=sys.argv[5],database=sys.argv[3])
+db_remote = simba.open(filename=sys.argv[5],database=sys.argv[4])
+db_merge = simba.open(filename=sys.argv[5],database=sys.argv[5])
+
 
 # Start off looking at all of the tables
 # LOCAL
 tables_local = set(db_local.getTableNames())
-# MERGED
-tables_merged = set(db_merged.getTableNames())
+# BASE
+tables_base = set(db_base.getTableNames())
 # REMOTE
 tables_remote = set(db_remote.getTableNames())
 
-tables_all = tables_local & tables_merged & tables_remote
-tables_added_by_local  = tables_local - tables_merged - tables_remote
-tables_added_by_remote = tables_local - tables_merged - tables_local
-tables_added_by_both   = (tables_local - tables_merged) & (tables_remote - tables_merged)
+tables_all = tables_local & tables_base & tables_remote
+tables_added_by_local  = tables_local - tables_base - tables_remote
+tables_added_by_remote = tables_remote - tables_base - tables_local
+tables_added_by_both   = (tables_local - tables_base) & (tables_remote - tables_base)
 
-#for table in (tables_added_by_local + tables_added_by_remote):
+print(tables_all)
+print(tables_added_by_local)
+print(tables_added_by_remote)
+print(tables_added_by_both)
+
+if tables_added_by_local:
+    print(util.green(str(len(tables_added_by_local)) + " tables were added by LOCAL. Add them?"))
+    ch = input(util.green("\tOPTIONS: y=add all, n=add none, a=ask for each [a]: "))    
+    if ch in ['y','yes','Y','Yes','YES']:
+        for table in tables_added_by_local: 
+            print(util.green("\tAdding: " + table))
+            table_local = db_local.getTable(table)
+            db_merge.copyTable(table_local)
+            print(db_merge.getTableNames())
+    elif ch in ['a','A']:
+        for table in tables_added_by_local: 
+            table_local = db_local.getTable(table)
+            ch = input(util.green("\t\tAdd " + table + "? [yN]: "))
+            if ch in ['y','yes','Y','Yes','YES']:
+                db_merge.copyTable(table_local)
+                print(db_merge.getTableNames())
+    elif ch not in ['n','N','no','No','NO']:
+        raise Exception(ch + " is not valid.")    
+if tables_added_by_remote:
+    print(util.green(str(len(tables_added_by_remote)) + " tables were added by REMOTE. Add them?"))
+    ch = input(util.green("\tOPTIONS: y=add all, n=add none, a=ask for each [a]: "))    
+    if ch in ['y','yes','Y','Yes','YES']:
+        for table in tables_added_by_remote: 
+            print(util.green("\tAdding: " + table))
+            table_remote = db_remote.getTable(table)
+            db_merge.copyTable(table_remote)
+            print(db_merge.getTableNames())
+    elif ch in ['a','A']:
+        for table in tables_added_by_remote: 
+            table_remote = db_remote.getTable(table)
+            ch = input(util.green("\t\tAdd " + table + "? [yN]: "))
+            if ch in ['y','yes','Y','Yes','YES']:
+                db_merge.copyTable(table_remote)
+                print(db_merge.getTableNames())
+    elif ch not in ['n','N','no','No','NO']:
+        raise Exception(ch + " is not valid.")    
+if tables_added_by_both:
+    for table in tables_added_by_both:
+        ch = input(util.green("Table "+table+" added by LOCAL and REMOTE. Add and merge? [yN]: "))
+        if ch in ['n','N','no','No','NO']: continue
+        table_local = db_local.getTable(table)
+        table_remote = db_remote.getTable(table)
+        records_local = table_local.get()
+        records_remote = table_remote.get()
+        hashes_local = set([rec['HASH'] for rec in records_local])
+        hashes_remote = set([rec['HASH'] for rec in records_remote])
+
+        hashes_both = hashes_local & hashes_remote
+        hashes_local_only = hashes_local - hashes_remote
+        hashes_remote_only = hashes_remote - hashes_local
+
+        print(hashes_both)
+        print(hashes_local_only)
+        print(hashes_remote)
+        print(hashes_remote_only)
+
+        records_merged = []
+        for myhash in hashes_local_only:  
+            print("Adding local only " + myhash)
+            records_merged = records_merged + [item for item in records_local  if item['HASH'] == myhash]
+        for myhash in hashes_remote_only: 
+            print("Adding remote only " + myhash)
+            print([item for item in records_remote if item['HASH'] == myhash])
+            records_merged = records_merged + [item for item in records_remote if item['HASH'] == myhash]
+        for myhash in hashes_both:
+            rec_merged = dict()
+            rec_local  = next(item for item in records_local  if item['HASH'] == myhash)
+            rec_remote = next(item for item in records_remote  if item['HASH'] == myhash)
+            cols = set(rec_local.keys()) | set(rec_remote.keys())
+            for col in cols:
+                if col not in rec_local.keys():         rec_merged[col] = rec_remote[col]
+                elif col not in rec_remote.keys():      rec_merged[col] = rec_local[col]
+                elif rec_remote[col] == rec_local[col]: rec_merged[col] = rec_local[col]
+                else:
+                    print("\t"+col+":\tLocal = [" + util.blue(rec_local[col]) + "], Remote = [" + util.green(rec_remote[col]) + "]")
+                    ch = input("\t\tOPTIONS: " + util.blue("l=use local, ") + util.green("r=use remote") + " c= combine, i=ignore [l]: ")
+                    if   ch in ['l','L']: rec_merged[col] = rec_local[col]
+                    elif ch in ['r','R']: rec_merged[col] = rec_remote[col]
+                    elif ch in ['c','C']: rec_merged[col] = str(rec_local[col]) + " " + str(rec_remote[col])
+                    elif ch in ['i','I']: continue
+                    else: raise Exception(ch + " is not an acceptable answer")
+            records_merged.append(rec_merged)
+        table_merged = db_merge.addTable(table)
+        for rec in records_merged:
+            table_merged.update(rec)
+            
 
 
 
