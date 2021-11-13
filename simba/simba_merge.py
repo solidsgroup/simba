@@ -211,7 +211,7 @@ if tables_all:
                     elif ch == '2': rec_merged[col] = rec_remote[col]
                     elif ch == '3': rec_merged[col] = str(rec_local[col]) + " " + str(rec_remote[col])
                     elif ch == '4': rec_merged[col] = ''
-            table_merge.update(rec_merged)
+            table_merged.update(rec_merged)
 
 
 print("")
