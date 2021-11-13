@@ -214,6 +214,7 @@ if tables_all:
             table_merge.update(rec_merged)
 
 
+print("")
 
 db_base.close()
 db_local.close()
