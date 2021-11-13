@@ -20,7 +20,6 @@ class table:
 
     def get(self,
             columns=None,alias=None,
-#            match=None,
             asdict=True,
             **kwargs
             ):
@@ -99,9 +98,12 @@ class db:
         recs = tablenew.get()
         if len(recs): types = database.getTypes(recs[0])
         else: types = None
-        database.updateTable(tableret.cur,tableret.name,types,vebose=False)
+        database.updateTable(tableret.cur,tableret.name,types,verbose=False)
+        for rec in recs: tableret.update(rec)
         tableret.db.commit()
         return tableret
+    def close(self):
+        self.db.close()
 
 def open(filename = None, database = None):
     dbret = db()
