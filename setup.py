@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="simba",
-    version="2020.08.21.01",
+    version="2021.11.12.01",
     description="Manage output from scientific simulations",
     long_description=README,
     long_description_content_type="text/markdown",
