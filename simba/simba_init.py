@@ -136,6 +136,21 @@ else:
     print("Note: data.ini already exists")
 
 
-#simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-#config    = util.getConfigFile(simbaPath)
-#scripts   = util.getScripts(config)
+gitDir = util.getGitDir(pathlib.Path('.'))
+if gitDir:
+    print("Git directory root: " + str(gitDir.parent))
+    configFile = open(gitDir/"config","a")
+    configFile.write('\n\n')
+    configFile.write('[diff "simba-diff"]\n')
+    configFile.write('        name = simba diff\n')
+    configFile.write('        tool = simba diff\n')
+    configFile.write('        command = simba diff\n')
+    configFile.write('\n')
+    configFile.write('[mergetool "simba-merge"]\n')
+    configFile.write('        name = simba merge\n')
+    configFile.write('        command = simba merge\n')
+    configFile.close()
+
+    attributeFile = open(".simba/.gitattributes","a")
+    attributeFile.write('\n*.db diff=simba-diff merge=simba-merge')
+    attributeFile.close()

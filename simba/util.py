@@ -48,7 +48,19 @@ def getSimbaDir(path):
             raise(Exception("No .simba directory found in " + str(path)))
         else:
             return(getSimbaDir(path.parent))
-#simbaPath = getSimbaDir(pathlib.Path.cwd())
+
+#
+# Look recursively for a .git directory in this or a parent path
+#
+def getGitDir(path):
+    """
+    Recursive function to find a .git directory in this or a parent path
+    """
+    if (path.absolute()/".git").is_dir(): return (path.absolute()/".git")
+    else:
+        if (path.absolute() == path.absolute().parent): return None
+        else: return(getGitDir(path.absolute().parent))
+
 
 #
 # Read in arguments from a config file
