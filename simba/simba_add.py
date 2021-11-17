@@ -19,7 +19,7 @@ from simba import util
 from simba import database
 #simbaPath = util.getSimbaDir(pathlib.Path.cwd())
 
-def add(simbaPath, config, scripts, mode='add', directories=None, databasename=None, remove=None, specifictable=None, updateall=False,verbose=True):
+def add(simbaPath, config, scripts, mode='add', __directories=None, databasename=None, remove=None, specifictable=None, updateall=False,verbose=True,locations=None):
     retlist = []
 
     from glob import glob
@@ -69,6 +69,19 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=N
     num_undead = 0 
     num_ghost = 0
     
+    # 
+    # If the locations optional argument is specified, we will restrict our directory search to the
+    # specified paths.
+    # Here, identify all the possible parent directories or directories in which to search, then
+    # store in 'abslocations'
+    #
+    if locations:
+        abslocations = set()
+        for locationset in [glob(l) for l in locations]:
+            for location in locationset:
+                abslocations.add(pathlib.Path(location).absolute())
+
+    
     for table in tables:
         if specifictable:
             if not table['name'] == specifictable:
@@ -77,8 +90,20 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=N
         ret = dict()
         
         types = dict()
-        directories = [d.replace(str(simbaPath)+'/../','') for d in sorted(glob(str(str(simbaPath)+"/../"+table["match"])))]
-    
+        directories = set([d.replace(str(simbaPath)+'/../','') for d in sorted(glob(str(str(simbaPath)+"/../"+table["match"])))])
+                
+        #
+        # If optional locations argument is provided, filter out those directories not
+        # included. Otherwise, continue with all directories specified.
+        #
+        if locations:
+            keep = set()
+            for dir in directories:
+                for abslocation in abslocations:
+                    if abslocation in pathlib.Path(dir).absolute().parents or abslocation == pathlib.Path(dir).absolute():
+                        keep.add(dir)
+            directories = keep
+            
         #
         # Scan metadata files to determine columns
         #
