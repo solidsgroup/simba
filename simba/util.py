@@ -45,7 +45,7 @@ def getSimbaDir(path):
         return (path/".simba").absolute()
     else:
         if (path == path.parent):
-            raise(Exception("No .simba directory found in " + str(path)))
+            return None
         else:
             return(getSimbaDir(path.parent))
 

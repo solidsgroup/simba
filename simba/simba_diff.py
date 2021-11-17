@@ -65,16 +65,16 @@ for table in sorted(tables_both):
     columns_remote = set([d[1] for d in cur_remote.fetchall()])
 
     columns_both = columns_local & columns_remote
-    columns_added = columns_local - columns_remote
-    columns_deleted = columns_remote - columns_local
+    columns_deleted = columns_local - columns_remote
+    columns_added = columns_remote - columns_local
 
     ## Do this if columns have been added. To be implemented.
     if columns_added:   
         quiet = printTableName(quiet)
-        print(util.green("\tColumns added: " + " ".join(columns_added)))
+        print(util.green("\tColumns added: " + "\n\t                 ".join(sorted(columns_added))))
     if columns_deleted: 
         quiet = printTableName(quiet)
-        #print(util.red("\tColumns deleted: " + " ".join(columns_deleted)))
+        print(util.red("\tColumns deleted: " + "\n\t                 ".join(sorted(columns_deleted))))
     
     ## Do this if columns are exactly the same
     query = 'SELECT ' + ','.join(['"'+c+'"' for c in columns_local]) + ' FROM "' + table + '"'

@@ -1,8 +1,9 @@
-Documentation for alamo
-=======================
+SimBA Documentation
+===================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-.. include:: ../../README.rst
+.. include:: ../../README.md
+

@@ -108,11 +108,12 @@ class db:
 def open(filename = None, database = None):
     dbret = db()
     simbaPath = util.getSimbaDir(pathlib.Path(filename) if filename else pathlib.Path.cwd())
-    config    = util.getConfigFile(simbaPath)
-    scripts   = util.getScripts(config)
-    dbret.simbaPath = simbaPath
-    dbret.config = config
-    dbret.scripts = scripts
+    if simbaPath:
+        config    = util.getConfigFile(simbaPath)
+        scripts   = util.getScripts(config)
+        dbret.simbaPath = simbaPath
+        dbret.config = config
+        dbret.scripts = scripts
     if database: dbret.db = sqlite3.connect(database)
     else: dbret.db = sqlite3.connect(str(simbaPath/"results.db"))
     dbret.db.text_factory = str
