@@ -275,7 +275,7 @@ def find_images(path):
     global imgfiles
     img_fmts = ['.jpg', '.jpeg', '.png', '.gif','.svg']
     imgfiles = []
-    for fmt in img_fmts: imgfiles += glob.glob(str(simbaPath) + "/../" + path+'/*'+fmt)
+    for fmt in img_fmts: imgfiles += glob.glob(path+'/*'+fmt)
     imgfiles.sort()
 
 def find_thumbnails(paths):

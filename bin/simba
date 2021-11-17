@@ -58,7 +58,7 @@ elif sys.argv[1] in ["remote"]:
     from simba import simba_remote
 elif sys.argv[1] in ["diff"]:
     from simba import simba_diff
-elif sys.argv[1] in ["merge"]:
+elif sys.argv[1] in ["merge", "mergetool"]:
     print(sys.argv)
     from simba import simba_merge
 else:

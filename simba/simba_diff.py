@@ -125,7 +125,11 @@ for table in sorted(tables_both):
         record_local = next(item for item in records_local if item['HASH'] == myhash)
         record_remote = next(item for item in records_remote if item['HASH'] == myhash)
         for key in record_local.keys():
-            if (record_local[key] != record_remote[key]):
+            if record_local[key] and key not in record_remote.keys():
+                quiet = printTableName(quiet)
+                recordquiet = printRecordName(recordquiet)
+                print("\t\t",key,": ", util.darkgray("null")," --> ",util.green(record_local[key]))                
+            elif record_local[key] and (record_local[key] != record_remote[key]):
                 quiet = printTableName(quiet)
                 recordquiet = printRecordName(recordquiet)
                 print("\t\t",key,": ", util.darkgray(record_remote[key])," --> ",util.green(record_local[key]))

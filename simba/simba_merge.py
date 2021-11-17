@@ -26,10 +26,10 @@ for arg in sys.argv:
     print(arg)
 
 
-db_local  = simba.open(filename=sys.argv[5],database=sys.argv[2])
-db_base   = simba.open(filename=sys.argv[5],database=sys.argv[3])
-db_remote = simba.open(filename=sys.argv[5],database=sys.argv[4])
-#db_merge  = simba.open(filename=sys.argv[5],database=sys.argv[5])
+db_local  = simba.open(database=sys.argv[2])
+db_base   = simba.open(database=sys.argv[3])
+db_remote = simba.open(database=sys.argv[4])
+
 
 tables_local  = set(db_local.getTableNames())
 tables_base   = set(db_base.getTableNames())
@@ -79,6 +79,8 @@ if tables_added_by_both:
         hashes_local_only = hashes_local - hashes_remote
         hashes_remote_only = hashes_remote - hashes_local
 
+        persist_user_choice = False
+        last_user_choice = None
         for myhash in hashes_local_only:  
             rec = next(item for item in records_local  if item['HASH'] == myhash)
             print(util.green("\t\tAdding (LOCAL): "+rec['HASH']+', '+rec['DIR']))
@@ -101,11 +103,18 @@ if tables_added_by_both:
                     print(util.yellow('\t\t\tMerge conflict: '+col+' = '))
                     print("\t\t\t\t"+util.blue(rec_local[col])+" (LOCAL)")
                     print("\t\t\t\t"+util.green(rec_remote[col])+" (REMOTE)")
-                    ch = input("\t\t\t\tOPTIONS: " + util.blue("1=LOCAL") + ", " + util.green("2=REMOTE") + ", 3=Concatenate, 4=ignore: ")
-                    if ch == '1': rec_base[col] = rec_local[col]
-                    elif ch == '2': rec_base[col] = rec_remote[col]
-                    elif ch == '3': rec_base[col] = str(rec_local[col]) + " " + str(rec_remote[col])
-                    elif ch == '4': rec_base[col] = ''
+                    if persist_user_choice:
+                        ch = last_user_choice
+                    else:
+                        ch = input("\t\t\t\tOPTIONS: " + util.blue("1=LOCAL") + ", " + util.green("2=REMOTE") + ", 3=Concatenate, 4=ignore: ")
+                    if ch[0] == '1': rec_base[col] = rec_local[col]
+                    elif ch[0] == '2': rec_base[col] = rec_remote[col]
+                    elif ch[0] == '3': rec_base[col] = str(rec_local[col]) + " " + str(rec_remote[col])
+                    elif ch[0] == '4': rec_base[col] = ''
+                    if len(ch)>1:
+                        if ch[1] == 'A':
+                            persist_user_choice = True
+                            last_user_choice = ch[0]
             table_base.update(rec_base)
 
 if tables_all:
@@ -135,6 +144,8 @@ if tables_all:
         hashes_base_and_local = (hashes_base & hashes_local) - hashes_remote
         hashes_base_and_remote = (hashes_base & hashes_remote)- hashes_local
         
+        persist_user_choice_all = False
+        last_user_choice_all = None
         for myhash in hashes_base_and_local:  
             rec = next(item for item in records_local  if item['HASH'] == myhash)
             quiet = printTable(quiet)
@@ -152,7 +163,6 @@ if tables_all:
             rec = next(item for item in records_local  if item['HASH'] == myhash)
             quiet = printTable(quiet)
             print(util.green("\t\tAdding (REMOTE and LOCAL): "+myhash))
-            print("Hey there")
             for col in set(rec_local.keys()) | set(rec_remote.keys()):
                 if col not in rec_local.keys():         rec_base[col] = rec_remote[col]
                 elif col not in rec_remote.keys():      rec_base[col] = rec_local[col]
@@ -193,12 +203,17 @@ if tables_all:
                         print("\t\t\t\t"+util.cyan(rec_base[col])+" (BASE)")
                         print("\t\t\t\t"+util.blue(rec_local[col])+" (LOCAL)")
                         print("\t\t\t\t"+util.green(rec_remote[col])+" (REMOTE)")
-                        ch = input("\t\t\t\tOPTIONS: " + util.cyan("0=BASE") + ", " + util.blue("1=LOCAL") + ", " + util.green("2=REMOTE") + ", 3=Concatenate, 4=ignore: ")
-                        if ch == '0': rec_base[col] = rec_base[col]
-                        elif ch == '1': rec_base[col] = rec_local[col]
-                        elif ch == '2': rec_base[col] = rec_remote[col]
-                        elif ch == '3': rec_base[col] = str(rec_base[col]) + " " + str(rec_local[col]) + " " + str(rec_remote[col])
-                        elif ch == '4': rec_base[col] = ''
+                        if persist_user_choice_all: ch = last_user_choice_all
+                        else:                       ch = input("\t\t\t\tOPTIONS: " + util.cyan("0=BASE") + ", " + util.blue("1=LOCAL") + ", " + util.green("2=REMOTE") + ", 3=Concatenate, 4=ignore: ")
+                        if ch[0] == '0': rec_base[col] = rec_base[col]
+                        elif ch[0] == '1': rec_base[col] = rec_local[col]
+                        elif ch[0] == '2': rec_base[col] = rec_remote[col]
+                        elif ch[0] == '3': rec_base[col] = str(rec_base[col]) + " " + str(rec_local[col]) + " " + str(rec_remote[col])
+                        elif ch[0] == '4': rec_base[col] = ''
+                        if len(ch)>1:
+                            if ch[1] == 'A':
+                                persist_user_choice_all = True
+                                last_user_choice_all = ch[0]
                 # if column is in BASE and REMOTE only but not LOCAL?
                 elif col in (cols_base & cols_remote):
                     rec_base[col] = rec_remote[col]
@@ -206,7 +221,7 @@ if tables_all:
                 elif col in (cols_base & cols_local):
                     rec_base[col] = rec_local[col]
                 # if column is in REMOTE and LOCAL but not in BASE?
-                elif cols in (cols_base & cols_local):
+                elif col in (cols_base & cols_local):
                     quiet=printTable(quiet)
                     print(util.yellow('\t\t\tMerge conflict: '+col+' = '))
                     print("\t\t\t\t"+util.blue(rec_local[col])+" (LOCAL)")
@@ -229,3 +244,4 @@ db_remote.close()
 
 
         
+#sys.exit(-1) # TEMP for debugging purposes
