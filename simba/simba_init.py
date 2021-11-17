@@ -148,9 +148,9 @@ if gitDir:
     configFile.write('\n')
     configFile.write('[mergetool "simba-merge"]\n')
     configFile.write('        name = simba merge\n')
-    configFile.write('        command = simba merge\n')
+    configFile.write('        driver = simba merge %O %A %B %L\n')
     configFile.close()
 
-    attributeFile = open(".simba/.gitattributes","a")
+    attributeFile = open(gitDir/"info/attributes","a")
     attributeFile.write('\n*.db diff=simba-diff merge=simba-merge')
     attributeFile.close()

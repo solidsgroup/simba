@@ -194,8 +194,8 @@ def add(simbaPath, config, scripts, mode='add', directories=None, databasename=N
                 else:
                     if(verbose): print('\033[90mghost      ('+tablehash+') \033[9m'+directory+'\033[0m')
                     num_ghost += 1
-                if mode == 'add':
-                    database.updateRecord(cur,table['name'], None, tablehash, 'null')
+                #if mode == 'add': ## Let's NOT do this. 
+                #    database.updateRecord(cur,table['name'], None, tablehash, 'null')
     
         num_add += len(new)
         num_moved += len(moved)
