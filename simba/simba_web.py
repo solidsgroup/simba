@@ -246,11 +246,6 @@ def table(table):
 
     if table==None or table not in tables: table = tables[0]
 
-    numfiles = []
-    if not args.fast:
-        for d in data:
-            find_images(d['DIR'])
-            numfiles.append(len(imgfiles))
 
     columns.insert(0,columns.pop(columns.index('DIR')))
     columns.insert(1,columns.pop(columns.index('Description')))
@@ -258,6 +253,13 @@ def table(table):
     columns.insert(1,"Thumbnail")
 
     thumbnails = find_thumbnails([str(simbaPath)+"/../"+d['DIR'] for d in data])
+    numfiles = []
+    if not args.fast:
+        for d in data:
+            imgfiles = find_images(d['DIR'])
+            numfiles.append(len(imgfiles))
+
+
     return render_template('template.html', hostname=socket.gethostname(),
                             tables=tables,
                            counts=counts,
@@ -269,14 +271,14 @@ def table(table):
                             columns=columns,
                             thumbnails=thumbnails,
                            records=records)
-imgfiles = []
 def find_images(path):
     print("Path is ",str(simbaPath) + "/../" + path)
-    global imgfiles
     img_fmts = ['.jpg', '.jpeg', '.png', '.gif','.svg']
     imgfiles = []
-    for fmt in img_fmts: imgfiles += glob.glob(path+'/*'+fmt)
+    for fmt in img_fmts: imgfiles += glob.glob(str(simbaPath) + "/../" + path+'/*'+fmt)
+    print(imgfiles)
     imgfiles.sort()
+    return imgfiles
 
 def find_thumbnails(paths):
     thumbnails = []
@@ -285,8 +287,7 @@ def find_thumbnails(paths):
         tmp_files = []
         for fmt in img_fmts: tmp_files += glob.glob(path+'/*'+fmt)
         if len(tmp_files) > 0: thumbnails.append(sorted(tmp_files)[0].replace("/",r"DIRDIR"))
-        else: thumbnails.append("")
-    print(thumbnails)
+        else: thumbnails.append(None)
     return thumbnails
 
 def find_tarballs(path):
@@ -311,6 +312,7 @@ def serve_image(number):
 #@requires_auth
 def serve_thumbnail(number):
     #global thumbnails
+    print(number)
     return send_file(number.replace(r"DIRDIR","/"),cache_timeout=-1)
     #return number;
 
@@ -372,7 +374,7 @@ def table_entry(table,a_entry):
 
     data = dict(zip(columns,d))
 
-    find_images(str(simbaPath)+"/../"+data['DIR'])
+    imgfiles = find_images(data['DIR'])
     #find_images(data['DIR'])
     find_tarballs(data['DIR'])
     metadatafile=data['DIR']+"/metadata"

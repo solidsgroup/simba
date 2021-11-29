@@ -22,6 +22,8 @@ from simba import database
 
 
 print("\n\n### SIMBA DIFF ###")
+for arg in sys.argv:
+    print(arg)
 
 
 db_local = sqlite3.connect(sys.argv[2])

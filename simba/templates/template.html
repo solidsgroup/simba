@@ -186,7 +186,7 @@
 				{% endif %}
 			{% elif columns[i] == "Thumbnail"%}
                                 <td>
-                                  {% if numfiles[j] > 0 and data[j]['DIFF'] != "null" %}
+                                  {% if numfiles[j] > 0 and thumbnails[j] %}
                                   <img height="60px" src="/thumbnail/{{thumbnails[j]}}" class="zoom"/>
                                   {% endif %}
                                 </td>
