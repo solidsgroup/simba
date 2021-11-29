@@ -161,8 +161,8 @@ def table(table):
             for h, d in zip(hashes,dirs):
                 print("Deleting record with hash = ", h)
                 cur.execute('DELETE FROM "{}" WHERE HASH = ?'.format(table),(h,))
-                print("Deleting directory ", d)
-                os.system('rm -rf ' + d)
+                print("Deleting directory ", str(simbaPath)+"/../"+d)
+                os.system('rm -rf ' + str(simbaPath)+"/../"+d)
             records=dict()
             records['deleted'] = dirs
 

@@ -203,7 +203,7 @@
 				</td>
 			{% else %}
 				<td>
-				{{data[j][columns[i]] | string | truncate (50)}}
+				{{data[j][columns[i]] | string | reverse|  truncate (50) | reverse}}
 				</td>
 			{% endif %}
 		{% endfor %}

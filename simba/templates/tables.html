@@ -145,16 +145,15 @@
 			console.log(selectedrows.length);
 			var same = true;
 			for ( i = 0; i < selectedrows.length ; i++) {
+			    console.log(selectedrows[i][j]);
 				if (selectedrows[i][j] != selectedrows[0][j]){
 					same = false;
 				}
 			}
 			if (!same){
 				txt += '<tr><td>' + names[j] + '</td>'
-				//console.log(names[j]);
 				for ( i = 0; i < selectedrows.length ; i++) {
 					txt += '<td>' + selectedrows[i][j] + '</td>'
-					//console.log();
 				}
 				txt += '</tr>'
 			}
