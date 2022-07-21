@@ -36,6 +36,7 @@ if sys.argv[2] == "add":
     parser.add_argument('remote',help='SSH Remote Directory')
     parser.add_argument('--match',nargs='*',default='*')
     parser.add_argument('--localpath',default='./')
+    parser.add_argument('--maxdepth',default=3)
     args=parser.parse_args()
     print(args.match)
     if len(args.remote.split('@')) == 1: 
@@ -61,6 +62,7 @@ if sys.argv[2] == "add":
     remotefile.write(path+'\n')
     remotefile.write(' '.join(args.match)+'\n')
     remotefile.write(args.localpath+'\n')
+    remotefile.write(args.maxdepth+'\n')
     
 if sys.argv[2] == "pull":
     print("Pulling")
@@ -72,6 +74,7 @@ if sys.argv[2] == "pull":
         path = stuff[2].replace('\n','')
         matches = stuff[3].replace('\n','').split(' ')
         localrootpath = stuff[4].replace('\n','')
+        maxdepth = stuff[5].replace('\n','')
     print(usr)
     print(host)
     print(path)
@@ -89,7 +92,7 @@ if sys.argv[2] == "pull":
     times = []
     files = []
     for match in matches:
-        cmd = "cd " + path + r"; find . -maxdepth 3 -name " + match + r" -exec stat -c '%Y %n' {} \;"
+        cmd = "cd " + path + r"; find . -maxdepth " + maxdepth + ' -name "' + match + r'" -exec stat -c "%Y %n" {} \;'
         print(cmd)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
         if ssh_stdout:
