@@ -22,6 +22,10 @@ from simba import database
 def add(simbaPath, config, scripts, mode='add', __directories=None, databasename=None, remove=None, specifictable=None, updateall=False,verbose=True,locations=None):
     retlist = []
 
+    # Preserve the original current working directory, since we may be
+    # be moving around a bit.
+    workingDirectory = pathlib.Path.cwd().resolve()
+
     from glob import glob
     from os.path import basename
     tables = []
@@ -77,10 +81,8 @@ def add(simbaPath, config, scripts, mode='add', __directories=None, databasename
     #
     if locations:
         abslocations = set()
-        for locationset in [glob(l) for l in locations]:
-            for location in locationset:
-                abslocations.add(pathlib.Path(location).absolute())
-
+        for l in locations:
+            abslocations.add((workingDirectory/pathlib.Path(l)).resolve())
     
     for table in tables:
         if specifictable:
@@ -100,7 +102,9 @@ def add(simbaPath, config, scripts, mode='add', __directories=None, databasename
             keep = set()
             for dir in directories:
                 for abslocation in abslocations:
-                    if abslocation in pathlib.Path(dir).absolute().parents or abslocation == pathlib.Path(dir).absolute():
+                    if abslocation == pathlib.Path(dir).resolve():
+                        keep.add(dir)
+                    if abslocation in pathlib.Path(dir).resolve().parents:
                         keep.add(dir)
             directories = keep
             
