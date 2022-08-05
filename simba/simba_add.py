@@ -147,6 +147,7 @@ def add(simbaPath, config, scripts, mode='add', __directories=None, databasename
         bad = []
         undead = []
         for directory in directories:
+            if not os.path.isdir(directory): continue
             dirname = directory
             try:
                 dirhash = scripts.getHash(str(simbaPath)+"/../"+directory)
