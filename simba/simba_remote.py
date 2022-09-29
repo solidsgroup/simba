@@ -62,9 +62,14 @@ if sys.argv[2] == "add":
     remotefile.write(path+'\n')
     remotefile.write(' '.join(args.match)+'\n')
     remotefile.write(args.localpath+'\n')
-    remotefile.write(args.maxdepth+'\n')
+    remotefile.write(str(args.maxdepth)+'\n')
     
 if sys.argv[2] == "pull":
+    parser = argparse.ArgumentParser(description='Sift through outputs')
+    parser.add_argument('mode',nargs=2,help='Remote function')
+    parser.add_argument('filter',nargs='*',help='Filter remotes')
+    args=parser.parse_args()
+
     print("Pulling")
     with open(simbaPath/"remote") as remotefile:
         stuff = remotefile.readlines()
@@ -97,10 +102,17 @@ if sys.argv[2] == "pull":
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
         if ssh_stdout:
             for s in ssh_stdout.readlines():
-                times.append(int(s.split(' ')[0]))
-                files.append(s.split(' ')[1].replace('\n',''))
-                #tocopy.append(s.replace('\n','').replace(path,'./'))
-                #print(times[-1],files[-1])
+                time, f = s.split(' ')
+                doit = True
+                if len(args.filter):
+                    doit = False
+                    for expression in args.filter:
+                        if expression in f:
+                            doit = True
+                            continue
+                if doit:
+                    times.append(int(time))
+                    files.append(f.replace('\n',''))
             for s in ssh_stderr.readlines():
                 sys.stderr.write(s)
 
