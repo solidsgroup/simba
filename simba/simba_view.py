@@ -27,7 +27,7 @@ parser.add_argument('-d','--database', default=str(simbaPath/'results.db'), help
 parser.add_argument('-t','--tag', default=None, help='Table name in database')
 #parser.add_argument('-a','--all', action='store_true', default=False, help='Force update of ALL records')
 args=parser.parse_args()
-
+print(args.database)
 #tables = []
 #if (simbaPath/"data.ini").is_file():
 #    config = configparser.ConfigParser()

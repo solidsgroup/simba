@@ -97,9 +97,11 @@ if sys.argv[2] == "pull":
     times = []
     files = []
     for match in matches:
-        cmd = "cd " + path + r"; find . -maxdepth " + maxdepth + ' -name "' + match + r'" -exec stat -c "%Y %n" {} \;'
+        #cmd = "cd " + path + r"; find . -maxdepth " + maxdepth + ' -name "' + match + r'" -exec stat -c "%Y %n" {} \;'
+        cmd = "cd " + path + r"; simba find . --match " + match
         print(cmd)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+        print(ssh_stdout)
         if ssh_stdout:
             for s in ssh_stdout.readlines():
                 time, f = s.split(' ')
