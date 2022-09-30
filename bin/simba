@@ -61,5 +61,8 @@ elif sys.argv[1] in ["diff"]:
 elif sys.argv[1] in ["merge", "mergetool"]:
     print(sys.argv)
     from simba import simba_merge
+elif sys.argv[1] in ["find"]:
+    print(sys.argv)
+    from simba import simba_find
 else:
     print("Command \"", sys.argv[1], "\" is not a valid command")
