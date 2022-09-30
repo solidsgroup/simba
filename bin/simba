@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import sys
 from simba import info
-print("Simba " + info.version)
-
 
 import pathlib
 import argparse
@@ -19,6 +17,7 @@ Basic commands:
     init    Initialize simba in current directory
 """)
 elif sys.argv[1] in ["add","status"]:
+    print("Simba " + info.version)
     simbaPath = util.getSimbaDir(pathlib.Path.cwd())
     config    = util.getConfigFile(simbaPath)
     scripts   = util.getScripts(config)
@@ -34,35 +33,41 @@ elif sys.argv[1] in ["add","status"]:
     args=parser.parse_args()
     simba_add.add(simbaPath,config,scripts,sys.argv[1],None,args.database,args.remove,args.table,args.all,locations=args.locations)
 elif sys.argv[1] in ["view"]:
+    print("Simba " + info.version)
     simbaPath = util.getSimbaDir(pathlib.Path.cwd())
     config    = util.getConfigFile(simbaPath)
     scripts   = util.getScripts(config)
     from simba import simba_view
 elif sys.argv[1] in ["web"]:
+    print("Simba " + info.version)
     simbaPath = util.getSimbaDir(pathlib.Path.cwd())
     config    = util.getConfigFile(simbaPath)
     scripts   = util.getScripts(config)
     from simba import simba_web
 elif sys.argv[1] in ["init"]:
+    print("Simba " + info.version)
     from simba import simba_init
 elif sys.argv[1] in ["rt"]:
+    print("Simba " + info.version)
     simbaPath = util.getSimbaDir(pathlib.Path.cwd())
     config    = util.getConfigFile(simbaPath)
     scripts   = util.getScripts(config)
     print("Starting regression test")
     from simba import simba_rt
 elif sys.argv[1] in ["remote"]:
+    print("Simba " + info.version)
     simbaPath = util.getSimbaDir(pathlib.Path.cwd())
     config    = util.getConfigFile(simbaPath)
     scripts   = util.getScripts(config)
     from simba import simba_remote
 elif sys.argv[1] in ["diff"]:
+    print("Simba " + info.version)
     from simba import simba_diff
 elif sys.argv[1] in ["merge", "mergetool"]:
+    print("Simba " + info.version)
     print(sys.argv)
     from simba import simba_merge
 elif sys.argv[1] in ["find"]:
-    print(sys.argv)
     from simba import simba_find
 else:
     print("Command \"", sys.argv[1], "\" is not a valid command")
