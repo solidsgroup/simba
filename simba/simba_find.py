@@ -50,6 +50,6 @@ for table in tables:
         path = simbaPath/".."/entry[1]
         for match in args.match:
             for rec in sorted(glob.glob(str(path/match))):
-                print(hash, rec, os.path.getmtime(rec))
+                print(hash, os.path.relpath(rec,str(simbaPath/"..")), os.path.getmtime(rec))
 
 
