@@ -3,9 +3,18 @@ name: Linux Build and Test
 on: [push, pull_request]
 
 jobs:
-  Installation:
-    name: Installation
-    runs-on: ubuntu-latest
+  Installation-20-04:
+    name: Installation (20.04)
+    runs-on: ubuntu-20-04
+    steps:
+    - uses: actions/checkout@v2
+    - name: installing preliminaries
+      run: pip3 install -e .
+    - name: simba init
+      run: simba init
+  Installation-22-04:
+    name: Installation (22.04)
+    runs-on: ubuntu-22-04
     steps:
     - uses: actions/checkout@v2
     - name: installing preliminaries
