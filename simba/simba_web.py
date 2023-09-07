@@ -306,21 +306,21 @@ def find_thermo(path):
 #@requires_auth
 def serve_image(number):
     global imgfiles
-    return send_file(imgfiles[int(number)],cache_timeout=-1)
+    return send_file(imgfiles[int(number)],max_age=-1)
 
 @app.route('/thumbnail/<number>')
 #@requires_auth
 def serve_thumbnail(number):
     #global thumbnails
     print(number)
-    return send_file(number.replace(r"DIRDIR","/"),cache_timeout=-1)
+    return send_file(number.replace(r"DIRDIR","/"),max_age=-1)
     #return number;
 
 @app.route('/metadata/')
 #@requires_auth
 def serve_metadata():
     global metadatafile
-    response = send_file(metadatafile,cache_timeout=-1,as_attachment=True)
+    response = send_file(metadatafile,max_age=-1,as_attachment=True)
     response.headers["x-filename"] = "metadata"
     response.headers["Access-Control-Expose-Headers"] = 'x-filename'
     return response
@@ -330,7 +330,7 @@ def serve_metadata():
 #@requires_auth
 def serve_thermo():
     global thermofile
-    response = send_file(thermofile,cache_timeout=-1,as_attachment=True)
+    response = send_file(thermofile,max_age=-1,as_attachment=True)
     response.headers["x-filename"] = "thermo.dat"
     response.headers["Access-Control-Expose-Headers"] = 'x-filename'
     return response
@@ -340,7 +340,7 @@ def serve_thermo():
 def serve_tarball(filename,number):
     print (filename)
     global tarballfiles
-    response = send_file(tarballfiles[int(number)],cache_timeout=-1,as_attachment=True)
+    response = send_file(tarballfiles[int(number)],max_age=-1,as_attachment=True)
     response.headers["x-filename"] = filename
     response.headers["Access-Control-Expose-Headers"] = 'x-filename'
     return response
