@@ -7,7 +7,7 @@ import argparse
 import getpass
 from functools import wraps
 from flask import Flask, request, render_template, send_file, redirect, Response, url_for
-from flaskext.markdown import Markdown
+#from flaskext.markdown import Markdown
 from flask_frozen import Freezer
 import datetime
 import webbrowser
@@ -101,7 +101,7 @@ if not args.safe and not args.ip == '127.0.0.1' or args.ip == 'localhost':
 script_directory = os.path.realpath(__file__)
 
 app = Flask(__name__)
-Markdown(app)
+#Markdown(app)
 
 app.jinja_env.filters['datetime'] = format_datetime
 
