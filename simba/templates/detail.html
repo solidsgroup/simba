@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="container-fluid",style="width:100%">
-	<a href="/table/{{table}}"><button type="button" class="btn btn-primary pull-left"><span class="glyphicon glyphicon-arrow-left"></span> Back</button></a>
-</div>
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -42,127 +39,154 @@
 	}
 </style>
 
-<div class="container-fluid" width="100%">
-	<h3 class="pull-left">Simulation Information </h3>
-</div>
-<div class="container-fluid">
-	<button onclick="window.location.href = '/metadata/';" class="btn btn-primary pull-left"><span class="glyphicon glyphicon-cog margin-right px-2"></span> <i class="icon-camera-retro"></i> Download metadata file</button>
+<h1>{{data['DIR']}}</h1>
+
+<div class="row m-2",style="width:100%">
+  <a href="/table/{{table}}" type="button" class="btn btn-warning col-md-2 m-1"><i class="icon-arrow-left"></i> Back</a>
+	<button onclick="window.location.href = '/metadata/';" class="btn btn-primary m-1 col-md-2 "> Metadata</button>
 	{% if thermofile == None %} 
-		<button onclick="window.location.href = '/thermo/';" class="btn btn-disabled pull-left" disabled> <i class="icon-line-chart"></i> Download thermo.dat</button> &nbsp;
+		<button onclick="window.location.href = '/thermo/';" class="btn btn-secondary pull-left col-md-2 m-1" disabled> <i class="icon-bar-chart"></i> thermo.dat</button> &nbsp;
 	{% else %} 
-		<button onclick="window.location.href = '/thermo/';" class="btn btn-primary pull-left"> <i class="icon-line-chart"></i> Download thermo.dat</button> &nbsp;
+		<button onclick="window.location.href = '/thermo/';" class="btn btn-primary pull-left col-md-2 m-1"> <i class="icon-bar-chart"></i> thermo.dat</button> &nbsp;
 	{% endif %}
-	<button type="button" class="btn btn-danger pull-left" data-href="/delete.php?id=54" data-toggle="modal" data-target="#confirm-delete"><span class="glyphicon glyphicon-trash"></span> Delete</button>&nbsp;
+	<button type="button" class="btn btn-danger pull-left m-1 col-md-2 " data-href="/delete.php?id=54" data-toggle="modal" data-target="#confirm-delete"><i class="icon-trash"></i> Delete</button>&nbsp;
 </div>
 
-<div class="container-fluid">
-<table class="table">
-  <thead>
-	<tr>
-	  <th>Field</th><th>Value</th>
-	</tr>
-  </thead>
-  {% for i in range (0,columns|length) %}
-  <tr>
-	{% if columns[i] == "Description" %}
-	<td> {{ columns[i] }}</td>
-	<td>
-	  <div width="100%">
-		{{data[columns[i]] | string }}
-		<button type="button" class="btn btn-primary pull-right btn-xs" data-toggle="collapse" data-target="#form-description">Edit Description</button>
-	  </div>
-	  <br/>
-	  <div width="100%">
-		<form width="100%" class="form-group collapse out" id="form-description" action="/table/{{table}}/entry/{{entry}}" method="post">
-		  <textarea class="form-control" rows="5" name='description'>{{data[columns[i]]}}</textarea>
-		  <button class="btn btn-success pull-right" type="Update">Update</button>
-		</form>
-	  </div>
-	</td>
-	{% elif columns[i] == "Tags" %}
-	<td> {{ columns[i] }}</td>
-	<td>
-	  <div width="100%">
-		{% if data['Tags'] %}
-		{% set taglist = data['Tags'].split(',') %}
-		{% for tag in taglist %}
-			<span class="label label-primary">{{tag}} </span>&nbsp;
-		{% endfor %}
-		{% endif %}
-		<button type="button" class="btn btn-primary pull-right btn-xs" data-toggle="collapse" data-target="#form-tags">Edit Tags</button>
-	  </div>
-	  <br/>
-	  <div width="100%">
-		<form width="100%" class="form-group collapse out" id="form-tags" action="/table/{{table}}/entry/{{entry}}" method="post">
-		  <textarea class="form-control" rows="5" name="tags">{{data[columns[i]]}}</textarea>
-		  <button class="btn btn-success pull-right" type="Update">Update</button>
-		</form>
-	  </div>
-	</td>
-	{% elif columns[i] == "DIFF" %}
+<div id="accordion">
+  <div class="card">
+    <div class="card-header" id="heading-sim-information">
+      <h5 class="mb-0">
+        <button class="btn" data-toggle="collapse" data-target="#collapse-sim-information" >
+          <h3><i class="icon-reorder"></i> Simulation Information</h3>
+        </button>
+      </h5>
+    <!--div class="container-fluid"-->
+    <div id="collapse-sim-information" class="collapse show" aria-labelledby="heading-sim-information" data-parent="#accordion">
+      <table class="table">
+        <thead>
+	     <tr>
+	       <th>Field</th><th>Value</th>
+	     </tr>
+        </thead>
+        {% for i in range (0,columns|length) %}
+        <tr>
+	     {% if columns[i] == "Description" %}
+	     <td> {{ columns[i] }}</td>
+	     <td>
+	       <div width="100%">
+		    {{data[columns[i]] | string }}
+		    <button type="button" class="btn btn-primary pull-right btn-xs" data-toggle="collapse" data-target="#form-description">Edit Description</button>
+	       </div>
+	       <br/>
+	       <div width="100%">
+		    <form width="100%" class="form-group collapse out" id="form-description" action="/table/{{table}}/entry/{{entry}}" method="post">
+		      <textarea class="form-control" rows="5" name='description'>{{data[columns[i]]}}</textarea>
+		      <button class="btn btn-success pull-right" type="Update">Update</button>
+		    </form>
+	       </div>
+	     </td>
+	     {% elif columns[i] == "Tags" %}
+	     <td> {{ columns[i] }}</td>
+	     <td>
+	       <div width="100%">
+		    {% if data['Tags'] %}
+		    {% set taglist = data['Tags'].split(',') %}
+		    {% for tag in taglist %}
+		    <span class="label label-primary">{{tag}} </span>&nbsp;
+		    {% endfor %}
+		    {% endif %}
+		    <button type="button" class="btn btn-primary pull-right btn-xs" data-toggle="collapse" data-target="#form-tags">Edit Tags</button>
+	       </div>
+	       <br/>
+	       <div width="100%">
+		    <form width="100%" class="form-group collapse out" id="form-tags" action="/table/{{table}}/entry/{{entry}}" method="post">
+		      <textarea class="form-control" rows="5" name="tags">{{data[columns[i]]}}</textarea>
+		      <button class="btn btn-success pull-right" type="Update">Update</button>
+		    </form>
+	       </div>
+	     </td>
+	     {% elif columns[i] == "DIFF" %}
 		<td> {{ columns[i] }}</td>
 		<td>
-			<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-diff">
-				<span class="glyphicon glyphicon-retweet"></span> View diff of changes made since most recent commit
-			</button>
-			<a href="/table/{{table}}/entry/{{entry}}/diff.patch">Diff Patch</a>
-			<div style="width=0px;">
-				<div class="modal fade" id="modal-diff" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-					<div class="modal-dialog modal-lg" role="document">
-	  					<div class="modal-content">
-							<div class="modal-header">
-		  						<h5 class="modal-title" id="exampleModalLabel">Git DIFF</h5>
-		  						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-		  						</button>
-							</div>
-							<div class="modal-body">
-								{{ data['DIFF'] | safe}}
-							</div>
-							<div class="modal-footer">
-		  						<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-							</div>
-	  					</div>
-					</div>
-				</div>			
-			</div>
+		  <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-diff">
+		    <span class="glyphicon glyphicon-retweet"></span> View diff of changes made since most recent commit
+		  </button>
+		  <a href="/table/{{table}}/entry/{{entry}}/diff.patch">Diff Patch</a>
+		  <div style="width=0px;">
+		    <div class="modal fade" id="modal-diff" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			 <div class="modal-dialog modal-lg" role="document">
+	  		   <div class="modal-content">
+				<div class="modal-header">
+		  		  <h5 class="modal-title" id="exampleModalLabel">Git DIFF</h5>
+		  		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				    <span aria-hidden="true">&times;</span>
+		  		  </button>
+				</div>
+				<div class="modal-body">
+				  {{ data['DIFF'] | safe}}
+				</div>
+				<div class="modal-footer">
+		  		  <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+				</div>
+	  		   </div>
+			 </div>
+		    </div>			
+		  </div>
 		</td>
-	{% elif columns[i] == "STDOUT" %}
-	{% elif columns[i] == "STDERR" %}
-	{% elif columns[i] == "DIFF_PATCH" %}
-	{% else %}
-	<td> {{ columns[i] }}</td>
-	<td> {{ data[columns[i]] }}</td>
-	{% endif %}
-  </tr>
-  {% endfor %}
-</table>
+	     {% elif columns[i] == "STDOUT" %}
+	     {% elif columns[i] == "STDERR" %}
+	     {% elif columns[i] == "DIFF_PATCH" %}
+	     {% else %}
+	     <td> {{ columns[i] }}</td>
+	     <td> {{ data[columns[i]] }}</td>
+	     {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="heading-sim-images">
+      <h5 class="mb-0">
+        <button class="btn" data-toggle="collapse" data-target="#collapse-sim-images" aria-expanded="true" aria-controls="collapse-sim-images">
+          <h3><i class="fa-fw icon-camera-retro"></i> Simulation Images</h3>
+        </button>
+      </h5>
+    <!--div class="container-fluid"-->
+    <div id="collapse-sim-images" class="collapse show"  data-parent="#accordion">
+      <div class="row  m-1">
+	   {% for i in range(0,imgfiles|length) %}
+	   <div class="card col-md-2 m-1">
+          <div class="card-body">
+	       <img class="card-img-top" width="100%" src="/img/{{i}}" ></img>
+	       <a class="card-text" href="/img/{{i}}"> {{imgfiles[i]}}</a>
+          </div>
+	   </div>
+	   {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" id="heading-sim-files">
+      <h5 class="mb-0">
+        <button class="btn" data-toggle="collapse" data-target="#collapse-sim-files">
+          <h3><i class="fa-fw icon-file"></i> Simulation Files</h3>
+        </button>
+      </h5>
+    <!--div class="container-fluid"-->
+    </div>
+    <div id="collapse-sim-files" class="collapse show"  data-parent="#accordion">
+      <ul class="list-group row">
+	   {% for i in range(0,tarballfiles|length) %}
+	   <ul><span class="glyphicon glyphicon-circle-arrow-down"</span><a href="/tarball/{{tarballfiles[i]}}/{{i}}"> {{tarballfiles[i]}}</a></ul>
+	             {% endfor %}
+                  </ul>
+    </div>
+  </div>
 </div>
 
-<h3>Simulation Files</h3>
 
-<div class="row">
-  <ul class="list-group row">
-	{% for i in range(0,tarballfiles|length) %}
-	<ul><span class="glyphicon glyphicon-circle-arrow-down"</span><a href="/tarball/{{tarballfiles[i]}}/{{i}}"> {{tarballfiles[i]}}</a></ul>
-	{% endfor %}
-</ul>
-</div>
-
-<h3>Simulation Analysis</h3>
-
-<div class="row">
-	{% for i in range(0,imgfiles|length) %}
-	<div class="thumbnail col-md-4 ml-auto">
-	  <a class="thumbnail" href="/img/{{i}}" style="word-wrap:break-word;">
-	  <img src="/img/{{i}}" ></img>
-	  </a>
-	  <div class="caption text-center">
-		<a href="/img/{{i}}"> {{imgfiles[i]}}</a>
-	  </div>
-	</div>
-	{% endfor %}
-</div>
 
 
 {% endblock %}

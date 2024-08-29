@@ -16,12 +16,24 @@ Basic commands:
     web     Start web server
     init    Initialize simba in current directory
 """)
-elif sys.argv[1] in ["add","status"]:
-    print("Simba " + info.version)
-    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-    config    = util.getConfigFile(simbaPath)
-    scripts   = util.getScripts(config)
+    exit(-1)
 
+if sys.argv[1] in ["init"]:
+    print("Simba " + info.version)
+    from simba import simba_init
+    exit(0)
+
+simbaPath = util.getSimbaDir(pathlib.Path.cwd())
+if not simbaPath:
+    print("Cannot find a simba directory. If this is your first time running simba")
+    print("here, try running simba init")
+    exit(-1)
+print("Simba " + info.version)
+config    = util.getConfigFile(simbaPath)
+scripts   = util.getScripts(config)
+
+
+if sys.argv[1] in ["add","status"]:
     from simba import simba_add
     parser = argparse.ArgumentParser(description='Sift through outputs')
     parser.add_argument('mode',nargs=1)
@@ -33,41 +45,22 @@ elif sys.argv[1] in ["add","status"]:
     args=parser.parse_args()
     simba_add.add(simbaPath,config,scripts,sys.argv[1],None,args.database,args.remove,args.table,args.all,locations=args.locations)
 elif sys.argv[1] in ["view"]:
-    print("Simba " + info.version)
-    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-    config    = util.getConfigFile(simbaPath)
-    scripts   = util.getScripts(config)
     from simba import simba_view
 elif sys.argv[1] in ["web"]:
-    print("Simba " + info.version)
-    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-    config    = util.getConfigFile(simbaPath)
-    scripts   = util.getScripts(config)
     from simba import simba_web
-elif sys.argv[1] in ["init"]:
-    print("Simba " + info.version)
-    from simba import simba_init
 elif sys.argv[1] in ["rt"]:
-    print("Simba " + info.version)
-    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-    config    = util.getConfigFile(simbaPath)
-    scripts   = util.getScripts(config)
     print("Starting regression test")
     from simba import simba_rt
 elif sys.argv[1] in ["remote"]:
-    print("Simba " + info.version)
-    simbaPath = util.getSimbaDir(pathlib.Path.cwd())
-    config    = util.getConfigFile(simbaPath)
-    scripts   = util.getScripts(config)
     from simba import simba_remote
-elif sys.argv[1] in ["diff"]:
-    print("Simba " + info.version)
-    from simba import simba_diff
-elif sys.argv[1] in ["merge", "mergetool"]:
-    print("Simba " + info.version)
-    print(sys.argv)
-    from simba import simba_merge
-elif sys.argv[1] in ["find"]:
-    from simba import simba_find
+#elif sys.argv[1] in ["diff"]:
+#    print("Simba " + info.version)
+#    from simba import simba_diff
+#elif sys.argv[1] in ["merge", "mergetool"]:
+#    print("Simba " + info.version)
+#    print(sys.argv)
+#    from simba import simba_merge
+#elif sys.argv[1] in ["find"]:
+#    from simba import simba_find
 else:
     print("Command \"", sys.argv[1], "\" is not a valid command")
