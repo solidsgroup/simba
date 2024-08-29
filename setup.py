@@ -26,7 +26,7 @@ setup(
     ],
     packages=["simba"],
     include_package_data=True,
-    install_requires=["Flask>=0.2","Frozen-Flask","Flask-Markdown","terminaltables","pysqlite3"],
+    install_requires=["Flask>=0.2","Frozen-Flask","Flask-Markdown","terminaltables"],
     python_requires='>3.6',
     scripts=['bin/simba']
     #entry_points={
