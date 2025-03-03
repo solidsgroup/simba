@@ -67,7 +67,7 @@ def getGitDir(path):
 #
 def getConfigFile(simbaPath):
     def getIncludedFiles(configfile):
-        config = configparser.SafeConfigParser(allow_no_value=True)
+        config = configparser.ConfigParser(allow_no_value=True)
         config.optionxform = str
         config.read(configfile.parent/configfile)
         ret = []
@@ -80,11 +80,11 @@ def getConfigFile(simbaPath):
         ret += [configfile]
         return ret
 
-    config = configparser.SafeConfigParser(allow_no_value=True)
+    config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str
 
     for f in getIncludedFiles(simbaPath/"config"):
-        tmpconfig = configparser.SafeConfigParser(allow_no_value=True)
+        tmpconfig = configparser.ConfigParser(allow_no_value=True)
         tmpconfig.optionxform = str
         tmpconfig.read(f)
         for sec in tmpconfig:
